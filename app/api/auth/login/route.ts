@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@lib/db'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
+export const runtime = 'nodejs'
 
 function verifyPassword(password: string, storedHash: string) {
   const [salt, hash] = storedHash.split(':')
