@@ -11,6 +11,14 @@ export const revalidate = 0
 export const fetchCache = 'force-no-store'
 export const preferredRegion = 'home'
 
+export async function GET() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
+}
+
+export async function HEAD() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
+}
+
 function hashPassword(password: string) {
   const salt = crypto.randomBytes(16).toString('hex')
   const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
