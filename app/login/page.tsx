@@ -5,6 +5,8 @@ import Footer from '@components/Footer'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default function Login() {
   const router = useRouter()

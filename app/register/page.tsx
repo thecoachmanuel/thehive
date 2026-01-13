@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { isValidPhoneNumber } from '@lib/utils'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default function Register() {
   const router = useRouter()
