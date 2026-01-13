@@ -6,6 +6,7 @@ import crypto from 'crypto'
 import { isValidPhoneNumber } from '@lib/utils'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 function hashPassword(password: string) {
   const salt = crypto.randomBytes(16).toString('hex')

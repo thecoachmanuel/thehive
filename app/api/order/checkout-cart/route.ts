@@ -4,6 +4,7 @@ import { initializePayment } from '@lib/paystack'
 import { isValidPhoneNumber } from '@lib/utils'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 type InputItem = { productId: unknown; quantity?: unknown }
 type Item = { productId: number; quantity: number }

@@ -4,6 +4,7 @@ import { initializePayment } from '@lib/paystack'
 import { isValidPhoneNumber } from '@lib/utils'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const form = await req.formData()
