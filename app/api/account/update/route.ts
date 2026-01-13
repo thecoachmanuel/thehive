@@ -7,6 +7,9 @@ import { isValidPhoneNumber } from '@lib/utils'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
+export const preferredRegion = 'home'
 
 function hashPassword(password: string) {
   const salt = crypto.randomBytes(16).toString('hex')
