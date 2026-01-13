@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { prisma } from '@lib/db'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function NotFound() {
   const settings = await prisma.siteSetting.findFirst()
