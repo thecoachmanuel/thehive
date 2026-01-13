@@ -12,11 +12,11 @@ export const fetchCache = 'force-no-store'
 export const preferredRegion = 'home'
 
 export async function GET() {
-  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
+  return NextResponse.json({ ok: true })
 }
 
 export async function HEAD() {
-  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 })
+  return new Response(null, { status: 200 })
 }
 
 function hashPassword(password: string) {
