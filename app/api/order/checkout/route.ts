@@ -6,6 +6,8 @@ import { isValidPhoneNumber } from '@lib/utils'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
 
+export const runtime = 'nodejs'
+
 function hashPassword(password: string) {
   const salt = crypto.randomBytes(16).toString('hex')
   const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')

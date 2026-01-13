@@ -3,6 +3,8 @@ import { prisma } from '@lib/db'
 import { initializePayment } from '@lib/paystack'
 import { isValidPhoneNumber } from '@lib/utils'
 
+export const runtime = 'nodejs'
+
 type InputItem = { productId: unknown; quantity?: unknown }
 type Item = { productId: number; quantity: number }
 

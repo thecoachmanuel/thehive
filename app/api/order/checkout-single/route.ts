@@ -3,6 +3,8 @@ import { prisma } from '@lib/db'
 import { initializePayment } from '@lib/paystack'
 import { isValidPhoneNumber } from '@lib/utils'
 
+export const runtime = 'nodejs'
+
 export async function POST(req: NextRequest) {
   const form = await req.formData()
   const productId = Number(form.get('productId') || 0)
