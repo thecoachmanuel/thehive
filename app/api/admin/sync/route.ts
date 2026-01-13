@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@lib/db'
 import { isAdmin } from '@lib/auth'
+export const runtime = 'nodejs'
 
 export async function GET() {
   if (!isAdmin()) {

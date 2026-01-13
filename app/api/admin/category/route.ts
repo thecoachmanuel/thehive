@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@lib/db'
+export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   const form = await req.formData()

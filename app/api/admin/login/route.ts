@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { setAdminSession } from '@lib/auth'
 import { cookies } from 'next/headers'
+export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
