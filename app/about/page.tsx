@@ -2,6 +2,8 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { prisma } from '@lib/db'
 import Image from 'next/image'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function About() {
   const settings = await prisma.siteSetting.findFirst()
