@@ -4,6 +4,8 @@ import HeroSlider from '@components/HeroSlider'
 import Link from 'next/link'
 import Image from 'next/image'
 import { prisma } from '@lib/db'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const settings = await prisma.siteSetting.findFirst()

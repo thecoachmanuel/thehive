@@ -4,6 +4,8 @@ import AdminDashboard from '@components/AdminDashboard'
 import { prisma } from '@lib/db'
 import { isAdmin } from '@lib/auth'
 import { redirect } from 'next/navigation'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function Admin({ searchParams }: { searchParams: { tab?: string } }) {
   if (!isAdmin()) redirect('/admin/login')

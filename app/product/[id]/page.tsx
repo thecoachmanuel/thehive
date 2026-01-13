@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatNgn } from '@lib/utils'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
   const id = Number(params.id)

@@ -5,6 +5,8 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { formatNgn } from '@lib/utils'
 import Link from 'next/link'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function MyOrders() {
   const cookieStore = cookies()

@@ -4,6 +4,8 @@ import { CartProvider } from '@components/CartProvider'
 import { AuthProvider } from '@components/AuthProvider'
 import { cookies } from 'next/headers'
 import FloatingWhatsApp from '@components/FloatingWhatsApp'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await prisma.siteSetting.findFirst()

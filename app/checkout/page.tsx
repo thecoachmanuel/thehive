@@ -3,6 +3,8 @@ import Footer from '@components/Footer'
 import CheckoutForm from '@components/CheckoutForm'
 import { prisma } from '@lib/db'
 import { cookies } from 'next/headers'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function CheckoutPage() {
   const settings = await prisma.siteSetting.findFirst()

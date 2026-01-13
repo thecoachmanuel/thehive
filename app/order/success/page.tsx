@@ -5,6 +5,8 @@ import { verifyPayment } from '@lib/paystack'
 import { buildWhatsappMessage, formatNgn } from '@lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function Success({ searchParams }: { searchParams: { reference?: string } }) {
   const ref = searchParams.reference

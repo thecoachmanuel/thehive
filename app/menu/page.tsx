@@ -3,6 +3,8 @@ import Footer from '@components/Footer'
 import ProductCard from '@components/ProductCard'
 import { prisma } from '@lib/db'
 import Image from 'next/image'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default async function Menu() {
   const settings = await prisma.siteSetting.findFirst()
