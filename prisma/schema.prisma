@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SiteSetting {
+  id              Int     @id @default(autoincrement())
+  businessName    String
+  location        String
+  yearsExperience Int
+  tagline         String
+  whatsappNumber  String
+  instagram       String?
+  tiktok          String?
+  logoUrl         String?
+  primaryColor    String?
+  accentColor     String?
+  creamColor      String?
+  peachColor      String?
+  blushColor      String?
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  imageUrl String?
+  items    Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  priceNgn    Int
+  imageUrl    String
+  active      Boolean  @default(true)
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+}
+
+model Slide {
+  id       Int    @id @default(autoincrement())
+  imageUrl String
+  headline String
+  subtext  String
+  ctaText  String?
+  ctaLink  String?
+  active   Boolean @default(true)
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String?  // Nullable for guest users who haven't set a password yet (if we want to support that flow)
+  name      String?
+  phone     String?
+  role      String   @default("USER") // USER, ADMIN
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Order {
+  id               Int        @id @default(autoincrement())
+  userId           Int?       // Optional link to User
+  user             User?      @relation(fields: [userId], references: [id])
+  customerName     String
+  email            String
+  phone            String
+  totalAmountNgn   Int
+  status           String     @default("pending") // pending, processing, shipped, delivered, cancelled
+  deliveryMethod   String     @default("pickup") // pickup, delivery
+  deliveryAddress  String?
+  deliveryFee      Int        @default(0)
+  trackingCode     String     @unique @default(cuid()) // Auto-generate unique tracking code
+  paystackRef      String?
+  paidAt           DateTime?
+  createdAt        DateTime   @default(now())
+  items            OrderItem[]
+}
+
+model OrderItem {
+  id         Int    @id @default(autoincrement())
+  orderId    Int
+  productId  Int
+  quantity   Int
+  unitPriceNgn Int
+  note       String?
+
+  product    Product @relation(fields: [productId], references: [id])
+  order      Order   @relation(fields: [orderId], references: [id])
+}
+
+model DeliverySetting {
+  id             Int     @id @default(autoincrement())
+  isActive       Boolean @default(true)
+  method         String  @default("flat") // flat, percentage
+  rate           Int     @default(1000) // 1000 NGN or 10%
+  freeThreshold  Int?    // Optional: free delivery above this amount
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String
+  phone      String?
+  message    String
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  type       String   // order, contact, system
+  title      String
+  body       String
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+}

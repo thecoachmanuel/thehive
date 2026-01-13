@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --color-cocoa: 107 62 46;
+  --color-cream: 245 233 218;
+  --color-peach: 248 212 194;
+  --color-caramel: 239 168 110;
+  --color-blush: 244 182 194;
+  --color-primary: 239 168 110;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.btn {
+  @apply rounded-full px-5 py-3 font-medium transition-colors;
+}
+.btn-primary {
+  @apply bg-primary text-white hover:bg-cocoa;
+}
+.btn-secondary {
+  @apply bg-cream text-cocoa hover:bg-peach;
+}
+
+.container {
+  @apply mx-auto max-w-7xl px-4 md:px-6;
+}
+
+.card {
+  @apply rounded-2xl shadow-md hover:shadow-lg transition-shadow border border-cream bg-white;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

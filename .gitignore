@@ -1,0 +1,13 @@
+node_modules/
+.next/
+coverage/
+dist/
+build/
+out/
+
+.env
+prisma/dev.db
+*.tsbuildinfo
+.DS_Store
+npm-debug.log*
+yarn-error.log*
