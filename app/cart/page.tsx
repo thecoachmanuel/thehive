@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react'
 import { formatNgn } from '@lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export default function CartPage() {
   const { items, setQty, remove, total, count, clear } = useCart()
