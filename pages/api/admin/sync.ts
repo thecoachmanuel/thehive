@@ -14,17 +14,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return
     }
 
-    const [orders, messages, notifications] = await Promise.all([
-      prisma.order.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 200,
-        include: { items: { include: { product: true } } }
-      }),
-      prisma.message.findMany({ orderBy: { createdAt: 'desc' }, take: 200 }),
-      prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 200 })
-    ])
+    const [settings, categories, products, slides, orders, messages, notifications, deliverySettings] =
+      await Promise.all([
+        prisma.siteSetting.findFirst(),
+        prisma.category.findMany(),
+        prisma.product.findMany(),
+        prisma.slide.findMany(),
+        prisma.order.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: 200,
+          include: { items: { include: { product: true } } }
+        }),
+        prisma.message.findMany({ orderBy: { createdAt: 'desc' }, take: 200 }),
+        prisma.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 200 }),
+        prisma.deliverySetting.findFirst()
+      ])
 
-    res.status(200).json({ orders, messages, notifications })
+    res.status(200).json({ settings, categories, products, slides, orders, messages, notifications, deliverySettings })
     return
   }
 
@@ -41,4 +47,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-

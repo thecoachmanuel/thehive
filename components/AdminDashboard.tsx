@@ -109,12 +109,17 @@ export default function AdminDashboard({ settings, categories, products, slides,
     window.history.pushState({}, '', url)
   }
 
+  const [siteSettings, setSiteSettings] = useState(settings)
+  const [localCategories, setLocalCategories] = useState(categories)
+  const [localProducts, setLocalProducts] = useState(products)
+  const [localSlides, setLocalSlides] = useState(slides)
   const [localOrders, setLocalOrders] = useState(orders)
   const [editingProduct, setEditingProduct] = useState<any>(null)
   const [editingCategory, setEditingCategory] = useState<any>(null)
   const [editingSlide, setEditingSlide] = useState<any>(null)
   const [localMessages, setLocalMessages] = useState(messages)
   const [localNotifications, setLocalNotifications] = useState(notifications)
+  const [localDeliverySettings, setLocalDeliverySettings] = useState(deliverySettings)
 
   // Order Filters State
   const [orderSearch, setOrderSearch] = useState('')
@@ -144,7 +149,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
 
   const exportOrdersCSV = () => {
     const lines = [
-      `Site,${settings?.businessName || 'TheHive Cakes'}`,
+      `Site,${siteSettings?.businessName || 'TheHive Cakes'}`,
       `Report,Order Report`,
       `Generated,${new Date().toLocaleString()}`,
       '',
@@ -169,7 +174,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
     
     doc.setFontSize(22)
     doc.setTextColor(40)
-    doc.text(settings?.businessName || 'TheHive Cakes', 14, 20)
+    doc.text(siteSettings?.businessName || 'TheHive Cakes', 14, 20)
     
     doc.setFontSize(10)
     doc.setTextColor(100)
@@ -202,9 +207,14 @@ export default function AdminDashboard({ settings, categories, products, slides,
         if (!res.ok) return
         const data = await res.json()
         if (!alive) return
+        if (data.settings) setSiteSettings(data.settings)
+        if (data.categories) setLocalCategories(data.categories)
+        if (data.products) setLocalProducts(data.products)
+        if (data.slides) setLocalSlides(data.slides)
         if (data.orders) setLocalOrders(data.orders)
         if (data.messages) setLocalMessages(data.messages)
         if (data.notifications) setLocalNotifications(data.notifications)
+        if (data.deliverySettings) setLocalDeliverySettings(data.deliverySettings)
       } catch (e) {
         const msg = (e as Error)?.message || ''
         if (msg.includes('Failed to fetch')) return
@@ -392,7 +402,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
 
   const exportProductsCSV = () => {
     const lines = [
-      `Site,${settings?.businessName || 'TheHive Cakes'}`,
+      `Site,${siteSettings?.businessName || 'TheHive Cakes'}`,
       `Report,Product Catalog`,
       `Generated,${new Date().toLocaleString()}`,
       '',
@@ -400,14 +410,14 @@ export default function AdminDashboard({ settings, categories, products, slides,
     ]
     
     // Sort by category first
-    const sorted = [...products].sort((a, b) => {
-      const cA = categories.find(c => c.id === a.categoryId)?.name || ''
-      const cB = categories.find(c => c.id === b.categoryId)?.name || ''
+    const sorted = [...localProducts].sort((a, b) => {
+      const cA = localCategories.find(c => c.id === a.categoryId)?.name || ''
+      const cB = localCategories.find(c => c.id === b.categoryId)?.name || ''
       return cA.localeCompare(cB) || a.name.localeCompare(b.name)
     })
 
     sorted.forEach(p => {
-      const cat = categories.find(c => c.id === p.categoryId)?.name || 'Uncategorized'
+      const cat = localCategories.find(c => c.id === p.categoryId)?.name || 'Uncategorized'
       lines.push(`${p.id},"${cat}","${p.name}",${p.priceNgn},"${(p.description || '').replace(/"/g, '""')}"`)
     })
 
@@ -434,8 +444,8 @@ export default function AdminDashboard({ settings, categories, products, slides,
 
     // Group by Category
     const grouped: Record<string, any[]> = {}
-    products.forEach(p => {
-      const cat = categories.find(c => c.id === p.categoryId)?.name || 'Uncategorized'
+    localProducts.forEach(p => {
+      const cat = localCategories.find(c => c.id === p.categoryId)?.name || 'Uncategorized'
       if (!grouped[cat]) grouped[cat] = []
       grouped[cat].push(p)
     })
@@ -528,7 +538,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
         {activeTab === 'analytics' && (
           <div className="card p-6">
             <h2 className="text-xl font-bold text-cocoa mb-4">Analytics</h2>
-            <AnalyticsPanel orders={localOrders} siteName={settings?.businessName} logoUrl={settings?.logoUrl} />
+            <AnalyticsPanel orders={localOrders} siteName={siteSettings?.businessName} logoUrl={siteSettings?.logoUrl} />
           </div>
         )}
         {activeTab === 'orders' && (
@@ -718,9 +728,9 @@ export default function AdminDashboard({ settings, categories, products, slides,
             </form>
 
             <div className="card p-6">
-              <h2 className="text-xl font-bold text-cocoa mb-4">Existing Products ({products.length})</h2>
+              <h2 className="text-xl font-bold text-cocoa mb-4">Existing Products ({localProducts.length})</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products.map(p => (
+                {localProducts.map(p => (
                   <div key={p.id} className="border rounded p-3 flex gap-3 items-center group relative">
                     <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded object-cover bg-cream" />
                     <div className="overflow-hidden flex-1">
@@ -778,9 +788,9 @@ export default function AdminDashboard({ settings, categories, products, slides,
             </form>
 
             <div className="card p-6">
-              <h2 className="text-xl font-bold text-cocoa mb-4">Existing Categories ({categories.length})</h2>
+              <h2 className="text-xl font-bold text-cocoa mb-4">Existing Categories ({localCategories.length})</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categories.map(c => (
+                {localCategories.map(c => (
                   <div key={c.id} className="border rounded p-3 flex gap-3 items-center group relative">
                     <img src={c.imageUrl} alt={c.name} className="w-12 h-12 rounded object-cover bg-cream" />
                     <div className="overflow-hidden flex-1">
@@ -846,9 +856,9 @@ export default function AdminDashboard({ settings, categories, products, slides,
             </form>
 
             <div className="card p-6">
-              <h2 className="text-xl font-bold text-cocoa mb-4">Active Slides ({slides.length})</h2>
+              <h2 className="text-xl font-bold text-cocoa mb-4">Active Slides ({localSlides.length})</h2>
               <div className="grid grid-cols-1 gap-4">
-                {slides.map(s => (
+                {localSlides.map(s => (
                   <div key={s.id} className="border rounded p-3 flex gap-4 items-center group relative">
                     <img src={s.imageUrl} alt={s.headline} className="w-24 h-16 rounded object-cover bg-cream" />
                     <div className="flex-1">
@@ -882,14 +892,14 @@ export default function AdminDashboard({ settings, categories, products, slides,
             <form onSubmit={saveDelivery} className="space-y-4 max-w-lg">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isActive" defaultChecked={deliverySettings?.isActive} className="checkbox checkbox-primary" />
+                  <input type="checkbox" name="isActive" defaultChecked={localDeliverySettings?.isActive} className="checkbox checkbox-primary" />
                   <span className="text-sm font-semibold text-cocoa">Enable Delivery Option</span>
                 </label>
               </div>
               
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Delivery Fee Calculation Method</label>
-                <select name="method" defaultValue={deliverySettings?.method} className="input w-full border rounded p-2">
+                <select name="method" defaultValue={localDeliverySettings?.method} className="input w-full border rounded p-2">
                   <option value="flat">Flat Rate</option>
                   <option value="percentage">Percentage of Order</option>
                 </select>
@@ -897,13 +907,13 @@ export default function AdminDashboard({ settings, categories, products, slides,
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Rate (NGN or %)</label>
-                <input type="number" name="rate" defaultValue={deliverySettings?.rate} className="input w-full border rounded p-2" />
+                <input type="number" name="rate" defaultValue={localDeliverySettings?.rate} className="input w-full border rounded p-2" />
                 <p className="text-xs text-cocoa/60">If Flat: Amount in NGN. If Percentage: Percent value (e.g. 10)</p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Free Delivery Threshold (Optional)</label>
-                <input type="number" name="freeThreshold" defaultValue={deliverySettings?.freeThreshold || ''} placeholder="e.g. 50000" className="input w-full border rounded p-2" />
+                <input type="number" name="freeThreshold" defaultValue={localDeliverySettings?.freeThreshold || ''} placeholder="e.g. 50000" className="input w-full border rounded p-2" />
                 <p className="text-xs text-cocoa/60">Orders above this amount get free delivery. Leave empty to disable.</p>
               </div>
 
@@ -933,50 +943,50 @@ export default function AdminDashboard({ settings, categories, products, slides,
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Business Name</label>
-                <input name="businessName" defaultValue={settings?.businessName} required className="input w-full border rounded p-2" />
+                <input name="businessName" defaultValue={siteSettings?.businessName} required className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Tagline</label>
-                <input name="tagline" defaultValue={settings?.tagline} className="input w-full border rounded p-2" />
+                <input name="tagline" defaultValue={siteSettings?.tagline} className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">WhatsApp Number</label>
-                <input name="whatsappNumber" defaultValue={settings?.whatsappNumber} required className="input w-full border rounded p-2" />
+                <input name="whatsappNumber" defaultValue={siteSettings?.whatsappNumber} required className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Location/Address</label>
-                <input name="location" defaultValue={settings?.location} required className="input w-full border rounded p-2" />
+                <input name="location" defaultValue={siteSettings?.location} required className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Years of Experience</label>
-                <input name="yearsExperience" type="number" defaultValue={settings?.yearsExperience} required className="input w-full border rounded p-2" />
+                <input name="yearsExperience" type="number" defaultValue={siteSettings?.yearsExperience} required className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Site Logo</label>
-                <ImageUploader name="logoUrl" defaultValue={settings?.logoUrl} />
+                <ImageUploader name="logoUrl" defaultValue={siteSettings?.logoUrl} />
               </div>
               <div className="space-y-2">
-                <ColorField label="Primary Color" name="primaryColor" defaultValue={settings?.primaryColor || '#6B3E2E'} />
+                <ColorField label="Primary Color" name="primaryColor" defaultValue={siteSettings?.primaryColor || '#6B3E2E'} />
               </div>
               <div className="space-y-2">
-                <ColorField label="Accent Color" name="accentColor" defaultValue={settings?.accentColor || '#EFA86E'} />
+                <ColorField label="Accent Color" name="accentColor" defaultValue={siteSettings?.accentColor || '#EFA86E'} />
               </div>
               <div className="space-y-2">
-                <ColorField label="Cream Color" name="creamColor" defaultValue={settings?.creamColor || '#F5E9DA'} />
+                <ColorField label="Cream Color" name="creamColor" defaultValue={siteSettings?.creamColor || '#F5E9DA'} />
               </div>
               <div className="space-y-2">
-                <ColorField label="Peach Color" name="peachColor" defaultValue={settings?.peachColor || '#F8D4C2'} />
+                <ColorField label="Peach Color" name="peachColor" defaultValue={siteSettings?.peachColor || '#F8D4C2'} />
               </div>
               <div className="space-y-2">
-                <ColorField label="Blush Color" name="blushColor" defaultValue={settings?.blushColor || '#F4B6C2'} />
+                <ColorField label="Blush Color" name="blushColor" defaultValue={siteSettings?.blushColor || '#F4B6C2'} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Instagram Handle</label>
-                <input name="instagram" defaultValue={settings?.instagram ?? ''} placeholder="@handle" className="input w-full border rounded p-2" />
+                <input name="instagram" defaultValue={siteSettings?.instagram ?? ''} placeholder="@handle" className="input w-full border rounded p-2" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">TikTok Handle</label>
-                <input name="tiktok" defaultValue={settings?.tiktok ?? ''} placeholder="@handle" className="input w-full border rounded p-2" />
+                <input name="tiktok" defaultValue={siteSettings?.tiktok ?? ''} placeholder="@handle" className="input w-full border rounded p-2" />
               </div>
             </div>
           <button className="btn btn-primary mt-6">Save Changes</button>
