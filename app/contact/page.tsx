@@ -1,6 +1,5 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
-import { prisma } from '@lib/db'
 import Image from 'next/image'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -8,13 +7,12 @@ export const dynamic = 'force-dynamic'
 import { InstagramIcon, TikTokIcon, WhatsAppIcon } from '@components/SocialIcons'
 
 export default async function Contact() {
-  const settings = await prisma.siteSetting.findFirst()
-  const wa = settings?.whatsappNumber ?? '08166017556'
-  const ig = settings?.instagram ?? 'Kakesnbake_by_Deejah'
-  const tk = settings?.tiktok ?? 'Kakesnbake_by_Deejah'
+  const wa = '08166017556'
+  const ig = 'Kakesnbake_by_Deejah'
+  const tk = 'Kakesnbake_by_Deejah'
   return (
     <div>
-      <Header name={settings?.businessName} logoUrl={settings?.logoUrl ?? undefined} />
+      <Header />
       <section className="container py-8 md:py-12">
         <div className="relative rounded-2xl overflow-hidden h-48 md:h-64 flex flex-col items-center justify-center text-center mb-8">
           <Image
