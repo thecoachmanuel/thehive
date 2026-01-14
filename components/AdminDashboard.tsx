@@ -290,7 +290,8 @@ export default function AdminDashboard({ settings, categories, products, slides,
     try {
       const res = await fetch('/api/admin/category', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData as any))
       })
       const data = await res.json()
       if (data.success) {
