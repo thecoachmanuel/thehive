@@ -7,13 +7,13 @@ type Category = { id: number; name: string; slug: string; items: Array<{ id: num
 
 export default function ShopGrid({ categories }: { categories: Category[] }) {
   const searchParams = useSearchParams()
-  const initialCategory = searchParams.get('category')
+  const initialCategory = searchParams?.get('category') ?? null
   const [selected, setSelected] = useState<string>(
     initialCategory && categories.some(c => c.slug === initialCategory) ? initialCategory : 'all'
   )
 
   useEffect(() => {
-    const cat = searchParams.get('category')
+    const cat = searchParams?.get('category') ?? null
     if (cat && categories.some(c => c.slug === cat)) {
       setSelected(cat)
     } else {
