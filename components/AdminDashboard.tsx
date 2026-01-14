@@ -321,7 +321,11 @@ export default function AdminDashboard({ settings, categories, products, slides,
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     try {
-      const res = await fetch('/api/admin/slide', { method: 'POST', body: formData })
+      const res = await fetch('/api/admin/slide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData as any))
+      })
       if (res.ok) window.location.reload()
       else alert('Failed to save slide')
     } catch (err) {
@@ -334,7 +338,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     try {
-      const res = await fetch('/api/admin/delivery', { 
+      const res = await fetch('/api/admin/delivery-settings', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData as any))
@@ -652,7 +656,29 @@ export default function AdminDashboard({ settings, categories, products, slides,
               <button onClick={exportProductsPDF} className="btn btn-primary text-xs py-1 px-3 h-auto min-h-0">Export PDF</button>
             </div>
 
-            <form key={editingProduct?.id || 'new-product'} className="card p-6" action="/api/admin/product" method="POST">
+            <form
+              key={editingProduct?.id || 'new-product'}
+              className="card p-6"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                const formData = new FormData(e.currentTarget)
+                try {
+                  const res = await fetch('/api/admin/product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.fromEntries(formData as any))
+                  })
+                  if (res.ok) window.location.reload()
+                  else {
+                    const data = await res.json().catch(() => null)
+                    alert((data && data.error) || 'Failed to save product')
+                  }
+                } catch (err) {
+                  console.error(err)
+                  alert('Error saving product')
+                }
+              }}
+            >
               <div className="flex justify-between items-center mb-4">
                  <h2 className="text-xl font-bold text-cocoa">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
                  {editingProduct && (
@@ -887,7 +913,22 @@ export default function AdminDashboard({ settings, categories, products, slides,
         )}
 
         {activeTab === 'settings' && (
-          <form action="/api/admin/settings" method="POST" className="card p-6">
+          <form onSubmit={async (e) => {
+            e.preventDefault()
+            const formData = new FormData(e.currentTarget)
+            try {
+              const res = await fetch('/api/admin/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(formData as any))
+              })
+              if (res.ok) window.location.reload()
+              else alert('Failed to save settings')
+            } catch (err) {
+              console.error(err)
+              alert('Error saving settings')
+            }
+          }} className="card p-6">
             <h2 className="text-xl font-bold text-cocoa mb-4">Site Settings</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
