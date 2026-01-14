@@ -1,22 +1,14 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
-import { prisma } from '@lib/db'
 import Image from 'next/image'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function About() {
-  let settings: { businessName?: string | null; logoUrl?: string | null; yearsExperience?: number | null; tagline?: string | null } | null = null
-  try {
-    settings = await prisma.siteSetting.findFirst()
-  } catch {
-    settings = null
-  }
-
-  const businessName = settings?.businessName || 'TheHive Cakes'
-  const logoUrl = settings?.logoUrl || undefined
-  const yearsExperience = settings?.yearsExperience ?? 4
-  const tagline = settings?.tagline || 'Satisfying your cravings with every bite and sip.'
+  const businessName = 'TheHive Cakes'
+  const logoUrl = undefined
+  const yearsExperience = 4
+  const tagline = 'Satisfying your cravings with every bite and sip.'
 
   return (
     <div>
