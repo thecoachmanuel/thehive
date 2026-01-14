@@ -4,33 +4,50 @@ import { CartProvider } from '@components/CartProvider'
 import { AuthProvider } from '@components/AuthProvider'
 import { cookies } from 'next/headers'
 import FloatingWhatsApp from '@components/FloatingWhatsApp'
+import { prisma } from '@lib/db'
+import { isAdmin as isAdminSession } from '@lib/auth'
+
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await prisma.siteSetting.findFirst()
-  const siteName = settings?.businessName || 'TheHive Cakes'
-  return {
-    title: `${siteName} — Satisfying your cravings`,
-    description: 'Quality cakes, pastries, Chapman, and mocktails in Lagos. Secure online ordering with Paystack.',
-    keywords: ['cakes', 'pastries', 'Chapman', 'mocktails', 'Lagos', 'Paystack'],
-    openGraph: {
-      title: siteName,
-      description: 'Satisfying your cravings with every bite and sip.',
-      url: 'http://localhost:3000',
-      type: 'website'
-    },
-    metadataBase: new URL('http://localhost:3000')
+  const fallbackName = 'TheHive Cakes'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+  try {
+    const settings = await prisma.siteSetting.findFirst()
+    const siteName = settings?.businessName || fallbackName
+    return {
+      title: `${siteName} — Satisfying your cravings`,
+      description: 'Quality cakes, pastries, Chapman, and mocktails in Lagos. Secure online ordering with Paystack.',
+      keywords: ['cakes', 'pastries', 'Chapman', 'mocktails', 'Lagos', 'Paystack'],
+      openGraph: {
+        title: siteName,
+        description: 'Satisfying your cravings with every bite and sip.',
+        url: baseUrl,
+        type: 'website'
+      },
+      metadataBase: new URL(baseUrl)
+    }
+  } catch {
+    return {
+      title: `${fallbackName} — Satisfying your cravings`,
+      description: 'Quality cakes, pastries, Chapman, and mocktails in Lagos. Secure online ordering with Paystack.',
+      keywords: ['cakes', 'pastries', 'Chapman', 'mocktails', 'Lagos', 'Paystack']
+    }
   }
 }
-
-import { prisma } from '@lib/db'
-import { isAdmin as isAdminSession } from '@lib/auth'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = cookies().get('user_session')
   const isLoggedIn = !!session?.value
-  let isAdmin = isAdminSession()
+
+  let isAdmin = false
+  try {
+    isAdmin = isAdminSession()
+  } catch {
+    isAdmin = false
+  }
 
   if (isLoggedIn && session?.value) {
     try {
@@ -41,12 +58,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       if (user?.role === 'ADMIN') {
         isAdmin = true
       }
-    } catch (error) {
-      console.error('Error fetching user role:', error)
+    } catch {
+      isAdmin = isAdmin
     }
   }
 
-  const settings = await prisma.siteSetting.findFirst()
+  let settings: unknown = null
+  try {
+    settings = await prisma.siteSetting.findFirst()
+  } catch {
+    settings = null
+  }
+
   const s = (settings ?? {}) as { primaryColor?: string | null; accentColor?: string | null; creamColor?: string | null; peachColor?: string | null; blushColor?: string | null }
 
   function hexToTriplet(hex?: string | null): string | undefined {
