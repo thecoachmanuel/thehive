@@ -1,16 +1,11 @@
 import Link from 'next/link'
 import Header from '@components/Header'
 import Footer from '@components/Footer'
-import { prisma } from '@lib/db'
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
 
-export default async function NotFound() {
-  const settings = await prisma.siteSetting.findFirst()
-
+export default function NotFound() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header name={settings?.businessName} logoUrl={settings?.logoUrl ?? undefined} />
+      <Header />
       <div className="flex-1 flex flex-col items-center justify-center text-center p-6 bg-cream/30">
         <h1 className="text-9xl font-display font-bold text-caramel/20">404</h1>
         <h2 className="text-3xl font-bold text-cocoa mt-4">Page Not Found</h2>
