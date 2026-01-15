@@ -4,21 +4,21 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatNgn } from '@lib/utils'
+import { prisma } from '@lib/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: { id: string } }) {
 	const id = Number(params.id)
 	if (!id || Number.isNaN(id)) notFound()
 
-	const product = {
-		id,
-		name: 'Product unavailable',
-		description: 'This product detail will be available soon. You can continue shopping from our catalog.',
-		priceNgn: 0,
-		imageUrl: 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg'
-	}
+	const product = await prisma.product.findUnique({
+		where: { id },
+		include: { category: true }
+	})
+
+	if (!product || !product.active) notFound()
 
 	return (
 		<div>
@@ -35,12 +35,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 					</div>
 					<div className="card p-6">
 						<h1 className="text-2xl md:text-3xl font-display font-bold text-cocoa">{product.name}</h1>
+						{product.category && (
+							<p className="text-sm text-cocoa/70 mb-1">{product.category.name}</p>
+						)}
 						<p className="mt-2 text-cocoa/80">{product.description}</p>
 						<p className="mt-4 text-caramel font-semibold text-xl">{formatNgn(product.priceNgn)}</p>
 						<div className="mt-6 grid grid-cols-1 gap-3">
 							<p className="text-cocoa/70 text-sm">
-								To place an order for this item or something similar, please browse our
-								catalog or reach out via WhatsApp from the homepage.
+								To place an order for this item or something similar, please browse our catalog or reach out via WhatsApp from the homepage.
 							</p>
 							<Link href="/shop" className="btn btn-primary w-full">
 								Browse Shop

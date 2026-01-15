@@ -2,17 +2,23 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import ShopGrid from '@components/ShopGrid'
 import Image from 'next/image'
+import { prisma } from '@lib/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export default function Shop() {
-	const categories: Array<{
-		id: number
-		name: string
-		slug: string
-		items: Array<{ id: number; name: string; description: string; priceNgn: number; imageUrl: string }>
-	}> = []
+export default async function Shop() {
+	const categories = await prisma.category.findMany({
+		orderBy: { name: 'asc' },
+		include: {
+			items: {
+				where: { active: true },
+				orderBy: { priceNgn: 'asc' }
+			}
+		}
+	})
+
+	const categoriesWithItems = categories.filter((c) => c.items.length > 0)
 
 	return (
 		<div>
@@ -31,14 +37,14 @@ export default function Shop() {
 						<p className="mt-2 text-white/90 text-lg">Discover delicious cakes, pastries, Chapman, and mocktails.</p>
 					</div>
 				</div>
-				{categories.length === 0 ? (
+				{categoriesWithItems.length === 0 ? (
 					<div className="mt-8 card p-8 text-center max-w-2xl mx-auto">
 						<p className="text-cocoa/70 mb-4">
 							Our full catalog is being updated. You can still place custom orders via WhatsApp from the homepage.
 						</p>
 					</div>
 				) : (
-					<ShopGrid categories={categories} />
+					<ShopGrid categories={categoriesWithItems} />
 				)}
 			</section>
 			<Footer />

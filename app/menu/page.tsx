@@ -2,29 +2,28 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import ProductCard from '@components/ProductCard'
 import Image from 'next/image'
+import { prisma } from '@lib/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export default function Menu() {
-	const businessName = 'TheHive Cakes'
-	const logoUrl: string | undefined = undefined
-	type MenuItem = {
-		id: number
-		name: string
-		description: string
-		priceNgn: number
-		imageUrl: string
-	}
+export default async function Menu() {
+	const [settings, categories] = await Promise.all([
+		prisma.siteSetting.findFirst(),
+		prisma.category.findMany({
+			orderBy: { name: 'asc' },
+			include: {
+				items: {
+					where: { active: true },
+					orderBy: { priceNgn: 'asc' }
+				}
+			}
+		})
+	])
 
-	type MenuCategory = {
-		id: number
-		name: string
-		slug: string
-		items: MenuItem[]
-	}
-
-	const categories: MenuCategory[] = []
+	const businessName = settings?.businessName ?? 'TheHive Cakes'
+	const logoUrl = settings?.logoUrl ?? undefined
+	const categoriesWithItems = categories.filter((cat) => cat.items.length > 0)
 
 	return (
 		<div>
@@ -43,17 +42,17 @@ export default function Menu() {
 						<p className="mt-2 text-white/90 text-lg">Explore our delicious selection. Prices in ₦ NGN.</p>
 					</div>
 				</div>
-				{categories.length === 0 ? (
+				{categoriesWithItems.length === 0 ? (
 					<p className="text-center text-cocoa/70">
 						Our menu is being updated. Please check back soon.
 					</p>
 				) : (
 					<div className="space-y-10">
-						{categories.map((cat) => (
+						{categoriesWithItems.map((cat) => (
 							<div key={cat.id} id={cat.slug}>
 								<h2 className="text-2xl font-bold text-cocoa">{cat.name}</h2>
 								<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-									{cat.items.map((p: MenuItem) => (
+									{cat.items.map((p) => (
 										<ProductCard key={p.id} product={p} />
 									))}
 								</div>
