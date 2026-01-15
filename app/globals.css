@@ -23,13 +23,31 @@ body {
 }
 
 .btn {
-  @apply rounded-full px-5 py-3 font-medium transition-colors;
+	@apply rounded-full px-5 py-3 font-medium transition-colors transition-opacity;
+}
+.btn:hover {
+	opacity: 0.9;
+}
+.btn:active {
+	opacity: 0.85;
 }
 .btn-primary {
-  @apply bg-primary text-white hover:bg-cocoa;
+	@apply bg-primary text-white hover:bg-cocoa;
 }
 .btn-secondary {
-  @apply bg-cream text-cocoa hover:bg-peach;
+	@apply bg-cream text-cocoa hover:bg-peach;
+}
+
+button {
+	@apply transition-opacity;
+}
+
+button:hover {
+	opacity: 0.9;
+}
+
+button:active {
+	opacity: 0.85;
 }
 
 .container {

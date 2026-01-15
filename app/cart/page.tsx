@@ -10,7 +10,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default function CartPage() {
-  const { items, setQty, remove, total, count, clear } = useCart()
+	const { items, setQty, remove, total, count, clear } = useCart()
   const [settings, setSettings] = useState<{ businessName?: string; logoUrl?: string } | null>(null)
   useEffect(() => {
     fetch('/api/public/settings').then((r) => r.json()).then(setSettings).catch(() => setSettings({}))
@@ -38,21 +38,41 @@ export default function CartPage() {
             <Link href="/shop" className="btn btn-primary mt-4 inline-block w-fit">Back to Shop</Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
-            <div className="md:col-span-2 space-y-4">
-              {items.map((i) => (
-                <div key={i.productId} className="card p-4 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-semibold text-cocoa">{i.name}</p>
-                    <p className="text-sm text-cocoa/70">{formatNgn(i.priceNgn)}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input type="number" min={1} value={i.quantity} onChange={(e) => setQty(i.productId, Number(e.target.value))} className="w-20 border rounded p-2" />
-                    <button className="btn btn-secondary" onClick={() => remove(i.productId)}>Remove</button>
-                  </div>
-                </div>
-              ))}
-            </div>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+					<div className="md:col-span-2 space-y-4">
+						{items.map((i) => (
+							<div key={i.productId} className="card p-4 flex items-center justify-between gap-4">
+								<div>
+									<p className="font-semibold text-cocoa">{i.name}</p>
+									<p className="text-sm text-cocoa/70">{formatNgn(i.priceNgn)}</p>
+								</div>
+								<div className="flex items-center gap-4">
+									<div className="inline-flex items-center rounded-full border border-cream bg-cream/40 px-3 py-1.5 gap-3">
+										<button
+											type="button"
+											className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-cocoa border border-cream text-sm"
+											onClick={() => setQty(i.productId, i.quantity - 1)}
+											aria-label={`Decrease quantity of ${i.name}`}
+										>
+											<span className="-mt-px">-</span>
+										</button>
+										<span className="min-w-[2rem] text-center text-sm font-semibold text-cocoa">{i.quantity}</span>
+										<button
+											type="button"
+											className="flex h-7 w-7 items-center justify-center rounded-full bg-caramel text-white text-sm"
+											onClick={() => setQty(i.productId, i.quantity + 1)}
+											aria-label={`Increase quantity of ${i.name}`}
+										>
+											+
+										</button>
+									</div>
+									<button className="btn btn-secondary" type="button" onClick={() => remove(i.productId)}>
+										Remove
+									</button>
+								</div>
+							</div>
+						))}
+					</div>
             <div className="card p-4">
               <h2 className="font-bold text-cocoa">Summary</h2>
               <p className="mt-2 text-cocoa/70">Items: {count}</p>
