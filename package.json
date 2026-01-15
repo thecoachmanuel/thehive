@@ -16,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "^6.19.2",
     "axios": "^1.7.9",
+    "cloudinary": "^2.8.0",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "next": "^14.2.10",

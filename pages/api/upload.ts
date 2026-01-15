@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
+import { cloudinary, isCloudinaryEnabled } from '@lib/cloudinary'
 
 export const config = {
   api: {
@@ -53,15 +54,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const filenameMatch = headerSection.match(/filename="(.+?)"/)
         const filenameOriginal = filenameMatch?.[1] || 'upload'
         const ext = filenameOriginal.includes('.') ? filenameOriginal.split('.').pop() : 'bin'
-
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
         const filename = `image-${uniqueSuffix}.${ext}`
+
+        const fileBuffer = Buffer.from(contentSection, 'binary')
+
+        if (isCloudinaryEnabled()) {
+          try {
+            const result = await cloudinary.uploader.upload(`data:image/${ext};base64,${fileBuffer.toString('base64')}`, {
+              folder: 'thehive-cakes'
+            })
+            res.status(200).json({ url: result.secure_url })
+            return
+          } catch (err) {
+            console.error('Cloudinary upload failed, falling back to local storage:', err)
+          }
+        }
 
         const uploadDir = join(process.cwd(), 'public', 'uploads')
         await mkdir(uploadDir, { recursive: true })
 
         const filepath = join(uploadDir, filename)
-        await writeFile(filepath, Buffer.from(contentSection, 'binary'))
+        await writeFile(filepath, fileBuffer)
 
         const url = `/uploads/${filename}`
         res.status(200).json({ url })
@@ -78,4 +92,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-
