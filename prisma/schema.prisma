@@ -22,6 +22,7 @@ model SiteSetting {
   creamColor      String?
   peachColor      String?
   blushColor      String?
+  buttonTextColor String?
 }
 
 model Category {

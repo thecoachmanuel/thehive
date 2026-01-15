@@ -984,6 +984,9 @@ export default function AdminDashboard({ settings, categories, products, slides,
                 <ColorField label="Blush Color" name="blushColor" defaultValue={siteSettings?.blushColor || '#F4B6C2'} />
               </div>
               <div className="space-y-2">
+                <ColorField label="Button Text Color" name="buttonTextColor" defaultValue={siteSettings?.buttonTextColor || '#FFFFFF'} />
+              </div>
+              <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Instagram Handle</label>
                 <input name="instagram" defaultValue={siteSettings?.instagram ?? ''} placeholder="@handle" className="input w-full border rounded p-2" />
               </div>

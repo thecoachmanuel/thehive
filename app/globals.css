@@ -11,6 +11,7 @@
   --color-caramel: 239 168 110;
   --color-blush: 244 182 194;
   --color-primary: 239 168 110;
+  --color-button-text: 255 255 255;
 }
 
 html, body {
@@ -26,10 +27,10 @@ body {
 	@apply rounded-full px-5 py-3 font-medium transition-colors;
 }
 .btn-primary {
-	@apply bg-primary text-white hover:bg-cocoa;
+	@apply bg-primary text-buttonText hover:bg-cocoa;
 }
 .btn-secondary {
-	@apply bg-cream text-cocoa hover:bg-peach;
+	@apply bg-cream text-buttonText hover:bg-peach;
 }
 
 button {
