@@ -32,8 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				accentColor: String(body.accentColor ?? ''),
 				creamColor: String(body.creamColor ?? ''),
 				peachColor: String(body.peachColor ?? ''),
-				blushColor: String(body.blushColor ?? ''),
-				buttonTextColor: String(body.buttonTextColor ?? '')
+				blushColor: String(body.blushColor ?? '')
 			}
 
 			await prisma.siteSetting.upsert({ where: { id: 1 }, update: data, create: data })

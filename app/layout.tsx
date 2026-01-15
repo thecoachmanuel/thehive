@@ -54,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     isAdmin = false
   }
 
-  let settings: { primaryColor?: string | null; accentColor?: string | null; creamColor?: string | null; peachColor?: string | null; blushColor?: string | null; buttonTextColor?: string | null } | null = null
+	let settings: { primaryColor?: string | null; accentColor?: string | null; creamColor?: string | null; peachColor?: string | null; blushColor?: string | null } | null = null
   try {
     const { prisma } = await import('@lib/db')
     settings = await prisma.siteSetting.findFirst()
@@ -66,8 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		'--color-primary': hexToRgbTriplet(settings?.primaryColor ?? settings?.accentColor, '239 168 110'),
 		'--color-cream': hexToRgbTriplet(settings?.creamColor, '245 233 218'),
 		'--color-peach': hexToRgbTriplet(settings?.peachColor, '248 212 194'),
-		'--color-blush': hexToRgbTriplet(settings?.blushColor, '244 182 194'),
-		'--color-button-text': hexToRgbTriplet(settings?.buttonTextColor, '255 255 255')
+		'--color-blush': hexToRgbTriplet(settings?.blushColor, '244 182 194')
 	}
 
   return (
