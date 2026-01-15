@@ -6,8 +6,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  if (req.method === 'POST') {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+	if (req.method === 'POST') {
+		const appUrl =
+			process.env.NEXT_PUBLIC_BASE_URL ||
+			process.env.NEXT_PUBLIC_APP_URL ||
+			'http://localhost:3000'
 
     const baseCookie = 'HttpOnly; Path=/; Max-Age=0' + (process.env.NODE_ENV === 'production' ? '; Secure' : '')
 

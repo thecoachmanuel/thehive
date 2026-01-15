@@ -10,8 +10,11 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const siteName = 'TheHive Cakes'
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+	const siteName = 'TheHive Cakes'
+	const baseUrl =
+		process.env.NEXT_PUBLIC_BASE_URL ||
+		process.env.NEXT_PUBLIC_APP_URL ||
+		'http://localhost:3000'
 
   return {
     title: `${siteName} — Satisfying your cravings`,
