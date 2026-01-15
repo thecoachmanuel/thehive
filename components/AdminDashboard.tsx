@@ -393,7 +393,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
   const clearAllNotifications = async () => {
     if (!confirm('Clear all notifications?')) return
     try {
-      const res = await fetch('/api/notifications', { method: 'DELETE' })
+      const res = await fetch('/api/notifications?all=true', { method: 'DELETE' })
       if (res.ok) setLocalNotifications([])
     } catch (e) {
       console.error(e)
@@ -621,9 +621,12 @@ export default function AdminDashboard({ settings, categories, products, slides,
                           value={ORDER_STATUSES.includes(o.status) ? o.status : 'Order received'} 
                           onChange={(e) => updateOrderStatus(o.id, e.target.value)}
                           className={`px-2 py-1 rounded text-xs border cursor-pointer outline-none ${
+                            o.status === 'Order received' ? 'bg-sky-100 text-sky-700 border-sky-200' :
+                            o.status === 'Order processing' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                            o.status === 'Order in transit' ? 'bg-purple-100 text-purple-700 border-purple-200' :
                             o.status === 'Order delivered' ? 'bg-green-100 text-green-700 border-green-200' : 
                             o.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-200' : 
-                            'bg-yellow-100 text-yellow-700 border-yellow-200'
+                            'bg-gray-100 text-gray-700 border-gray-200'
                           }`}
                         >
                           {ORDER_STATUSES.map(s => (

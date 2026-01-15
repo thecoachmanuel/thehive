@@ -1,36 +1,44 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import HeroSlider from '@components/HeroSlider'
+import ProductCard from '@components/ProductCard'
 import Link from 'next/link'
 import Image from 'next/image'
-import { SiteSetting, Slide, Category } from '@prisma/client'
+import { SiteSetting, Slide, Category, Product } from '@prisma/client'
 
 export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+	export const dynamic = 'force-dynamic'
 
-export default async function Home() {
-	let settings: SiteSetting | null = null
-	let slides: Slide[] = []
-	let categories: Category[] = []
+	export default async function Home() {
+		let settings: SiteSetting | null = null
+		let slides: Slide[] = []
+		let categories: Category[] = []
+		let featuredProducts: Product[] = []
 
-	try {
-		const { prisma } = await import('@lib/db')
-		const [s, sl, c] = await Promise.all([
-			prisma.siteSetting.findFirst(),
-			prisma.slide.findMany({
-				where: { active: true },
-				orderBy: { id: 'asc' }
-			}),
-			prisma.category.findMany({
-				orderBy: { name: 'asc' }
-			})
-		])
-		settings = s
-		slides = sl
-		categories = c
-	} catch (error) {
-		console.error('Failed to fetch home data:', error)
-	}
+		try {
+			const { prisma } = await import('@lib/db')
+			const [s, sl, c, fp] = await Promise.all([
+				prisma.siteSetting.findFirst(),
+				prisma.slide.findMany({
+					where: { active: true },
+					orderBy: { id: 'asc' }
+				}),
+				prisma.category.findMany({
+					orderBy: { name: 'asc' }
+				}),
+				prisma.product.findMany({
+					where: { active: true },
+					orderBy: { id: 'desc' },
+					take: 6
+				})
+			])
+			settings = s
+			slides = sl
+			categories = c
+			featuredProducts = fp
+		} catch (error) {
+			console.error('Failed to fetch home data:', error)
+		}
 
 	const businessName = settings?.businessName ?? 'TheHive Cakes'
 	const logoUrl = settings?.logoUrl ?? undefined
@@ -45,13 +53,13 @@ export default async function Home() {
 			}))
 		: undefined
 
-	const visibleCategories = categories
+		const visibleCategories = categories
 
-	return (
-		<div>
-			<Header name={businessName} logoUrl={logoUrl} />
-			<HeroSlider slides={sliderData} siteName={businessName} />
-			<section className="container py-12">
+		return (
+			<div>
+				<Header name={businessName} logoUrl={logoUrl} />
+				<HeroSlider slides={sliderData} siteName={businessName} />
+				<section className="container py-12">
 				{visibleCategories.length === 0 ? (
 					<div className="card p-8 text-center max-w-2xl mx-auto">
 						<p className="text-cocoa/70 mb-4">
@@ -83,10 +91,35 @@ export default async function Home() {
 								</div>
 							</Link>
 						))}
-					</div>
+						</div>
+					)}
+				</section>
+				{featuredProducts.length > 0 && (
+					<section className="container py-6 md:py-10">
+						<div className="flex items-center justify-between mb-6 gap-4">
+							<div>
+								<h2 className="text-2xl md:text-3xl font-display font-bold text-cocoa">Featured products</h2>
+								<p className="text-sm md:text-base text-cocoa/70 mt-1">
+									Handpicked favourites customers love to order again and again.
+								</p>
+							</div>
+							<Link href="/shop" className="hidden md:inline-flex btn btn-outline text-sm">
+								View all products
+							</Link>
+						</div>
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+							{featuredProducts.map((p) => (
+								<ProductCard key={p.id} product={p} />
+							))}
+						</div>
+						<div className="mt-6 md:hidden text-center">
+							<Link href="/shop" className="btn btn-outline w-full text-sm">
+								View all products
+							</Link>
+						</div>
+					</section>
 				)}
-			</section>
-			<section className="bg-cream text-center">
+				<section className="bg-cream text-center">
 				<div className="container py-12 md:py-16 flex flex-col items-center">
 					<h2 className="text-2xl md:text-3xl font-display font-bold text-cocoa">Trusted by Lagos for 4 years</h2>
 					<p className="mt-3 text-cocoa/80 max-w-2xl mx-auto">

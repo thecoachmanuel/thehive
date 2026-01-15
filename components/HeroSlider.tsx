@@ -44,6 +44,39 @@ export default function HeroSlider({ slides = DEFAULT_SLIDES, siteName }: { slid
     return () => clearInterval(id)
   }, [slides.length])
 
+  const [touchStartX, setTouchStartX] = useState<number | null>(null)
+  const [touchEndX, setTouchEndX] = useState<number | null>(null)
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(e.touches[0].clientX)
+    setTouchEndX(null)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX === null) return
+    setTouchEndX(e.touches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) {
+      setTouchStartX(null)
+      setTouchEndX(null)
+      return
+    }
+
+    const distance = touchStartX - touchEndX
+    const threshold = 40
+
+    if (distance > threshold) {
+      setIndex((i) => (i + 1) % slides.length)
+    } else if (distance < -threshold) {
+      setIndex((i) => (i - 1 + slides.length) % slides.length)
+    }
+
+    setTouchStartX(null)
+    setTouchEndX(null)
+  }
+
   const [form, setForm] = useState({ location: '', note: '', timing: 'today', date: '' })
   const [whatsapp, setWhatsapp] = useState<string | null>(null)
 
@@ -74,7 +107,12 @@ export default function HeroSlider({ slides = DEFAULT_SLIDES, siteName }: { slid
 
   return (
     <section className="flex flex-col md:block relative">
-      <div className="relative h-[60vh] md:h-[75vh] w-full overflow-hidden">
+      <div
+        className="relative h-[60vh] md:h-[75vh] w-full overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {slides.map((s, i) => (
           <div
             key={s.id}

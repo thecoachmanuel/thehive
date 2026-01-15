@@ -10,6 +10,17 @@ import CartReminder from '@components/CartReminder'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+function hexToRgbTriplet(hex: string | null | undefined, fallback: string): string {
+  if (!hex) return fallback
+  const cleaned = hex.trim().replace('#', '')
+  if (cleaned.length !== 6) return fallback
+  const r = Number.parseInt(cleaned.slice(0, 2), 16)
+  const g = Number.parseInt(cleaned.slice(2, 4), 16)
+  const b = Number.parseInt(cleaned.slice(4, 6), 16)
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return fallback
+  return `${r} ${g} ${b}`
+}
+
 export async function generateMetadata(): Promise<Metadata> {
 	const siteName = 'TheHive Cakes'
 	const baseUrl =
@@ -43,11 +54,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     isAdmin = false
   }
 
+  let settings: { primaryColor?: string | null; accentColor?: string | null; creamColor?: string | null; peachColor?: string | null; blushColor?: string | null } | null = null
+  try {
+    const { prisma } = await import('@lib/db')
+    settings = await prisma.siteSetting.findFirst()
+  } catch {}
+
   const cssVars: Record<string, string> = {
-    '--color-cocoa': '107 62 46',
-    '--color-caramel': '239 168 110',
-    '--color-primary': '239 168 110'
-  }
+		'--color-cocoa': hexToRgbTriplet(settings?.primaryColor, '107 62 46'),
+		'--color-caramel': hexToRgbTriplet(settings?.accentColor ?? settings?.primaryColor, '239 168 110'),
+		'--color-primary': hexToRgbTriplet(settings?.primaryColor ?? settings?.accentColor, '239 168 110'),
+		'--color-cream': hexToRgbTriplet(settings?.creamColor, '245 233 218'),
+		'--color-peach': hexToRgbTriplet(settings?.peachColor, '248 212 194'),
+		'--color-blush': hexToRgbTriplet(settings?.blushColor, '244 182 194')
+	}
 
   return (
     <html lang="en">
