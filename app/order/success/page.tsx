@@ -6,7 +6,42 @@ import Link from 'next/link'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-export default function Success() {
+type SuccessProps = {
+	searchParams: { id?: string; code?: string }
+}
+
+function buildWhatsAppLink(whatsappNumber: string | null, orderId?: string, trackingCode?: string) {
+	const fallback = '08166017556'
+	const raw = whatsappNumber && whatsappNumber.trim() ? whatsappNumber.trim() : fallback
+	const intl = raw.replace(/\D/g, '').replace(/^0/, '234')
+
+	const parts = [
+		'Thank you for your purchase from TheHive Cakes.',
+		orderId ? `Order ID: #${orderId}` : null,
+		trackingCode ? `Tracking Code: ${trackingCode}` : null,
+		'Please confirm my order and share next steps.'
+	].filter(Boolean) as string[]
+
+	const text = encodeURIComponent(parts.join('\n'))
+	return `https://wa.me/${intl}?text=${text}`
+}
+
+export default async function Success({ searchParams }: SuccessProps) {
+	const orderId = searchParams.id
+	const trackingCode = searchParams.code
+
+	let whatsappNumber: string | null = null
+
+	try {
+		const { prisma } = await import('@lib/db')
+		const settings = await prisma.siteSetting.findFirst()
+		whatsappNumber = settings?.whatsappNumber ?? null
+	} catch (error) {
+		console.error('Failed to load WhatsApp number for success page:', error)
+	}
+
+	const whatsappLink = buildWhatsAppLink(whatsappNumber, orderId, trackingCode)
+
 	return (
 		<div>
 			<Header />
@@ -24,11 +59,23 @@ export default function Success() {
 						<p className="mt-2 text-white/90 text-lg">Thank you for your purchase.</p>
 					</div>
 				</div>
-				<div className="mt-4 card p-6 text-center max-w-2xl mx-auto">
+				<div className="mt-4 card p-6 text-center max-w-2xl mx-auto space-y-4">
 					<p className="text-lg text-cocoa/80">
-						Your payment has been received. A confirmation with your order details will be
-						 sent shortly.
+						Your payment has been received. A confirmation with your order details will be sent shortly.
 					</p>
+					<div className="mt-2 inline-flex flex-col gap-2 items-center">
+						<a
+							href={whatsappLink}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="btn btn-secondary inline-flex items-center gap-2"
+						>
+							<span>Send order to WhatsApp</span>
+						</a>
+						<p className="text-xs text-cocoa/60">
+							We will receive your order details on WhatsApp for faster confirmation.
+						</p>
+					</div>
 					<div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
 						<Link href="/orders" className="btn btn-primary inline-block">
 							Go to My Orders

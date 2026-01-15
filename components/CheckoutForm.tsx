@@ -169,6 +169,15 @@ export default function CheckoutForm({ settings, user }: { settings: DeliverySet
           </div>
         </div>
 
+			{!user && (
+				<div className="card p-4 mt-4 text-sm text-cocoa/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+					<p>Already have an account? Sign in to use your saved details.</p>
+					<Link href="/login?redirect=/checkout" className="btn btn-outline text-sm">
+						Sign in and continue checkout
+					</Link>
+				</div>
+			)}
+
         <div className="card p-6">
           <h2 className="text-xl font-bold text-cocoa mb-4">Delivery Method</h2>
           <div className="flex gap-4 mb-4">

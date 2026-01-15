@@ -3,13 +3,23 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+function getSafeRedirect(path: string | null) {
+	if (!path) return '/account'
+	if (!path.startsWith('/')) return '/account'
+	if (path.startsWith('//')) return '/account'
+	if (path.includes('://')) return '/account'
+	return path
+}
+
 export default function Login() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = getSafeRedirect(searchParams ? searchParams.get('redirect') : null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [site, setSite] = useState<{ businessName?: string; logoUrl?: string } | null>(null)
@@ -46,7 +56,7 @@ export default function Login() {
 			})
 
 			if (res.ok) {
-				router.push('/account')
+				router.push(redirectTo)
 				router.refresh()
 			} else {
 				let message = 'Login failed'
