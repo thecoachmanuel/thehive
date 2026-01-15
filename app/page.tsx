@@ -4,14 +4,15 @@ import HeroSlider from '@components/HeroSlider'
 import Link from 'next/link'
 import Image from 'next/image'
 import { prisma } from '@lib/db'
+import { SiteSetting, Slide, Category } from '@prisma/client'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-	let settings = null
-	let slides: any[] = []
-	let categories: any[] = []
+	let settings: SiteSetting | null = null
+	let slides: Slide[] = []
+	let categories: Category[] = []
 
 	try {
 		const [s, sl, c] = await Promise.all([

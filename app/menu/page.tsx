@@ -3,13 +3,18 @@ import Footer from '@components/Footer'
 import ProductCard from '@components/ProductCard'
 import Image from 'next/image'
 import { prisma } from '@lib/db'
+import { Prisma, SiteSetting } from '@prisma/client'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+type CategoryWithItems = Prisma.CategoryGetPayload<{
+	include: { items: true }
+}>
+
 export default async function Menu() {
-	let settings = null
-	let categories: any[] = []
+	let settings: SiteSetting | null = null
+	let categories: CategoryWithItems[] = []
 
 	try {
 		const [s, c] = await Promise.all([

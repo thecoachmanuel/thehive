@@ -3,12 +3,17 @@ import Footer from '@components/Footer'
 import ShopGrid from '@components/ShopGrid'
 import Image from 'next/image'
 import { prisma } from '@lib/db'
+import { Prisma } from '@prisma/client'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+type CategoryWithItems = Prisma.CategoryGetPayload<{
+	include: { items: true }
+}>
+
 export default async function Shop() {
-	let categories: any[] = []
+	let categories: CategoryWithItems[] = []
 
 	try {
 		categories = await prisma.category.findMany({
