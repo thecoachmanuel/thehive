@@ -1,11 +1,16 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default function MyOrders() {
+	const cookieStore = cookies()
+	const session = cookieStore.get('user_session')
+	const isSignedIn = !!session?.value
+
 	return (
 		<div>
 			<Header />
@@ -16,9 +21,11 @@ export default function MyOrders() {
 						Sign in to view your complete order history and track your purchases.
 					</p>
 					<div className="flex flex-wrap gap-3 justify-center">
-						<Link href="/login" className="btn btn-primary">
-							Sign In
-						</Link>
+						{!isSignedIn && (
+							<Link href="/login" className="btn btn-primary">
+								Sign In
+							</Link>
+						)}
 						<Link href="/track" className="btn btn-outline">
 							Track an Order
 						</Link>
