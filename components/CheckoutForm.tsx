@@ -19,7 +19,7 @@ type User = {
 }
 
 export default function CheckoutForm({ settings, user }: { settings: DeliverySetting | null, user: User | null }) {
-  const { items, total } = useCart()
+	const { items, total, clear } = useCart()
   const router = useRouter()
   const [deliveryMethod, setDeliveryMethod] = useState<'pickup' | 'delivery'>('pickup')
   const [createAccount, setCreateAccount] = useState(false)
@@ -65,7 +65,7 @@ export default function CheckoutForm({ settings, user }: { settings: DeliverySet
 
     setLoading(true)
     try {
-      const res = await fetch('/api/order/checkout', {
+			const res = await fetch('/api/order/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,12 +76,14 @@ export default function CheckoutForm({ settings, user }: { settings: DeliverySet
           createAccount: user ? false : createAccount // Don't create account if user is logged in
         })
       })
-      const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-      } else if (data.orderId) {
-        router.push(`/order/success?id=${data.orderId}&code=${data.trackingCode}`)
-      } else {
+			const data = await res.json()
+			if (data.url) {
+				clear()
+				window.location.href = data.url
+			} else if (data.orderId) {
+				clear()
+				router.push(`/order/success?id=${data.orderId}&code=${data.trackingCode}`)
+			} else {
         alert(data.error || 'Something went wrong')
       }
     } catch {

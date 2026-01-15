@@ -122,6 +122,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         })
         userId = user.id
+
+			const userIdStr = String(user.id)
+
+			const userCookieParts = [
+				`user_session=${encodeURIComponent(userIdStr)}`,
+				'HttpOnly',
+				'Path=/',
+				`Max-Age=${60 * 60 * 24 * 7}`,
+				process.env.NODE_ENV === 'production' ? 'Secure' : '',
+				'SameSite=Lax'
+			].filter(Boolean)
+
+			const clearAdminCookieParts = [
+				'admin_session=',
+				'HttpOnly',
+				'Path=/',
+				'Max-Age=0',
+				process.env.NODE_ENV === 'production' ? 'Secure' : '',
+				'SameSite=Lax'
+			].filter(Boolean)
+
+			res.setHeader('Set-Cookie', [userCookieParts.join('; '), clearAdminCookieParts.join('; ')])
       } else if (existingUser) {
         userId = null
       }

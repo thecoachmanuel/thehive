@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react'
 import { formatNgn } from '@lib/utils'
+import { useAuth } from './AuthProvider'
 
 type OrderItem = {
   id: number
@@ -31,13 +32,22 @@ export default function TrackOrderClient() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const { isLoggedIn, isAdmin } = useAuth()
+  const showEmailField = !isLoggedIn || isAdmin
+
   async function handleTrack(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
     setResult(null)
     try {
-      const res = await fetch(`/api/order/track?id=${orderId}&email=${email}`)
+      const params = new URLSearchParams()
+      params.set('id', orderId)
+      if (email.trim()) {
+        params.set('email', email.trim())
+      }
+
+      const res = await fetch(`/api/order/track?${params.toString()}`)
       const data: unknown = await res.json()
       if (res.ok) {
         setResult(data as OrderTrackResult)
@@ -64,14 +74,15 @@ export default function TrackOrderClient() {
               value={orderId}
               onChange={e => setOrderId(e.target.value)}
             />
-            <input
-              required
-              type="email"
-              placeholder="Email Address"
-              className="input w-full border rounded p-2"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
+            {showEmailField && (
+              <input
+                type="email"
+                placeholder="Email Address (optional)"
+                className="input w-full border rounded p-2"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            )}
             <button disabled={loading} className="btn btn-primary w-full">
               {loading ? 'Tracking...' : 'Track Order'}
             </button>
