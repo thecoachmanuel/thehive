@@ -4,22 +4,38 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ProfileEditForm from '@components/ProfileEditForm'
+import type { User } from '@prisma/client'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Account() {
-  const cookieStore = cookies()
-  const session = cookieStore.get('user_session')
+	const cookieStore = cookies()
+	const session = cookieStore.get('user_session')
 
-  if (!session?.value) {
-    redirect('/login')
-  }
+	if (!session?.value) {
+		redirect('/login')
+	}
 
-  const safeUser = {
-    name: null,
-    email: '',
-    phone: null
-  }
+	let user: Pick<User, 'name' | 'email' | 'phone'> | null = null
+
+	try {
+		const id = Number(session.value)
+		if (!Number.isNaN(id) && id > 0) {
+			const { prisma } = await import('@lib/db')
+			user = await prisma.user.findUnique({
+				where: { id },
+				select: { name: true, email: true, phone: true }
+			})
+		}
+	} catch (error) {
+		console.error('Failed to load account user:', error)
+	}
+
+	const safeUser = {
+		name: user?.name ?? null,
+		email: user?.email ?? '',
+		phone: user?.phone ?? null
+	}
 
   return (
     <div>
