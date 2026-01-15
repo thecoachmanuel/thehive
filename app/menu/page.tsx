@@ -24,7 +24,6 @@ export default async function Menu() {
 				orderBy: { name: 'asc' },
 				include: {
 					items: {
-						where: { active: true },
 						orderBy: { name: 'asc' }
 					}
 				}
@@ -70,7 +69,7 @@ export default async function Menu() {
 							<div key={cat.id} id={cat.slug}>
 								<h2 className="text-2xl font-bold text-cocoa">{cat.name}</h2>
 								<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-									{cat.items.map((p) => (
+									{cat.items.map((p: CategoryWithItems['items'][number]) => (
 										<ProductCard key={p.id} product={p} />
 									))}
 								</div>

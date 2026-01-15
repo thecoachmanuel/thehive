@@ -20,7 +20,6 @@ export default async function Shop() {
 			orderBy: { name: 'asc' },
 			include: {
 				items: {
-					where: { active: true },
 					orderBy: { name: 'asc' }
 				}
 			}

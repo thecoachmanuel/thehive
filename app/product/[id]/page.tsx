@@ -25,7 +25,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
 		// returning null here will trigger the notFound() below
 	}
 
-	if (!product || !product.active) notFound()
+	if (!product) notFound()
 
 	return (
 		<div>
