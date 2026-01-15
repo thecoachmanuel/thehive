@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { formatNgn } from '@lib/utils'
-import { prisma } from '@lib/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -15,6 +14,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
 
 	let product = null
 	try {
+		const { prisma } = await import('@lib/db')
 		product = await prisma.product.findUnique({
 			where: { id },
 			include: { category: true }
