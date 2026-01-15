@@ -31,10 +31,10 @@ export default function Register() {
     }
   }, [])
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault()
+		setLoading(true)
+		setError('')
 
     const formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData as any)
@@ -51,26 +51,36 @@ export default function Register() {
       return
     }
 
-    try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+		try {
+			const res = await fetch('/api/auth/register', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			})
 
-      if (res.ok) {
-        router.push('/account')
-        router.refresh()
-      } else {
-        const json = await res.json()
-        setError(json.error || 'Registration failed')
-      }
-    } catch {
-      setError('Something went wrong')
-    } finally {
-      setLoading(false)
-    }
-  }
+			if (res.ok) {
+				router.push('/account')
+				router.refresh()
+			} else {
+				let message = 'Registration failed'
+				try {
+					const json = await res.json().catch(() => null)
+					if (json && typeof json === 'object' && 'error' in json && typeof (json as any).error === 'string') {
+						message = (json as any).error
+					} else {
+						const text = await res.text().catch(() => '')
+						if (text) message = text
+					}
+				} catch {}
+				setError(message)
+			}
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : 'Something went wrong'
+			setError(msg)
+		} finally {
+			setLoading(false)
+		}
+	}
 
   return (
     <div>
