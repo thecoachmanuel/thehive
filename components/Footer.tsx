@@ -109,7 +109,7 @@ export default function Footer() {
 									setInstallEvent(null)
 								}
 							}}
-							className="btn btn-primary text-xs md:text-sm px-4 py-2 md:px-5 md:py-2.5 md:inline-flex"
+							className="text-xs md:text-sm text-caramel hover:text-cocoa underline-offset-2 hover:underline transition-colors"
 						>
 							Install app
 						</button>

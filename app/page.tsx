@@ -2,6 +2,7 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import HeroSlider from '@components/HeroSlider'
 import ProductCard from '@components/ProductCard'
+import InstallPromptBanner from '@components/InstallPromptBanner'
 import Link from 'next/link'
 import Image from 'next/image'
 import { SiteSetting, Slide, Category, Product } from '@prisma/client'
@@ -151,6 +152,7 @@ export const runtime = 'nodejs'
 					</div>
 				</div>
 			</section>
+			<InstallPromptBanner />
 			<Footer />
 		</div>
 	)
