@@ -21,27 +21,28 @@ function hexToRgbTriplet(hex: string | null | undefined, fallback: string): stri
   return `${r} ${g} ${b}`
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-	const siteName = 'TheHive Cakes'
-	const baseUrl =
-		process.env.NEXT_PUBLIC_BASE_URL ||
-		process.env.NEXT_PUBLIC_APP_URL ||
-		'http://localhost:3000'
+	export async function generateMetadata(): Promise<Metadata> {
+		const siteName = 'TheHive Cakes'
+		const baseUrl =
+			process.env.NEXT_PUBLIC_BASE_URL ||
+			process.env.NEXT_PUBLIC_APP_URL ||
+			'http://localhost:3000'
 
-  return {
-    title: `${siteName} — Satisfying your cravings`,
+	  return {
+	    title: `${siteName} — Satisfying your cravings`,
     description:
       'Quality cakes, pastries, Chapman, and mocktails in Lagos. Secure online ordering with Paystack.',
     keywords: ['cakes', 'pastries', 'Chapman', 'mocktails', 'Lagos', 'Paystack'],
-    openGraph: {
-      title: siteName,
-      description: 'Satisfying your cravings with every bite and sip.',
-      url: baseUrl,
-      type: 'website'
-    },
-    metadataBase: new URL(baseUrl)
-  }
-}
+	    openGraph: {
+	      title: siteName,
+	      description: 'Satisfying your cravings with every bite and sip.',
+	      url: baseUrl,
+	      type: 'website'
+	    },
+	    metadataBase: new URL(baseUrl),
+	    manifest: '/manifest.webmanifest'
+	  }
+	}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = cookies().get('user_session')
