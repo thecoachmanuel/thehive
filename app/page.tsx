@@ -59,38 +59,56 @@ export const runtime = 'nodejs'
 			<div>
 				<Header name={businessName} logoUrl={logoUrl} />
 				<HeroSlider slides={sliderData} siteName={businessName} />
-				<section className="container py-12">
-				{visibleCategories.length === 0 ? (
-					<div className="card p-8 text-center max-w-2xl mx-auto">
-						<p className="text-cocoa/70 mb-4">
-							Our curated categories are being updated. Browse all products in the shop.
-						</p>
-						<Link href="/shop" className="btn btn-primary">
-							Visit Shop
-						</Link>
-					</div>
-				) : (
-					<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-						{visibleCategories.map((c) => (
-						<Link key={c.id} href={`/shop?category=${c.slug}`} className="card overflow-hidden group">
-							<div className="relative h-48">
-								<Image
-									src={
-										c.imageUrl && c.imageUrl.trim()
-											? c.imageUrl
-											: 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg'
-									}
-									alt={c.name}
-									fill
-									className="object-cover group-hover:scale-105 transition-transform"
-								/>
-							</div>
-								<div className="p-4">
-									<h3 className="font-bold text-cocoa">{c.name}</h3>
-									<p className="text-sm text-cocoa/70">Explore delicious {c.name.toLowerCase()} made with love.</p>
-								</div>
+				<section className="container py-10">
+					{visibleCategories.length === 0 ? (
+						<div className="card p-8 text-center max-w-2xl mx-auto">
+							<p className="text-cocoa/70 mb-4">
+								Our curated categories are being updated. Browse all products in the shop.
+							</p>
+							<Link href="/shop" className="btn btn-primary">
+								Visit Shop
 							</Link>
-						))}
+						</div>
+					) : (
+						<div className="space-y-4">
+							<div className="flex items-baseline justify-between gap-4">
+								<h2 className="text-xl md:text-2xl font-display font-bold text-cocoa">
+									Shop by category
+								</h2>
+								<Link href="/shop" className="hidden md:inline-flex text-sm text-primary hover:text-caramel font-medium">
+									View all
+								</Link>
+							</div>
+							<div className="overflow-x-auto no-scrollbar -mx-4 px-4">
+								<div className="flex gap-5">
+									{visibleCategories.map((c) => (
+										<Link
+											key={c.id}
+											href={`/shop?category=${c.slug}`}
+											className="flex flex-col items-center text-center min-w-[80px] flex-shrink-0"
+										>
+											<div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-cream border border-caramel flex items-center justify-center overflow-hidden shadow-sm">
+												{c.imageUrl && c.imageUrl.trim() ? (
+													<Image
+														src={c.imageUrl}
+														alt={c.name}
+														width={80}
+														height={80}
+														className="w-full h-full object-cover"
+													/>
+												) : (
+													<span className="text-sm font-semibold text-cocoa">
+														{c.name.charAt(0)}
+													</span>
+												)}
+											</div>
+											<span className="mt-2 text-xs md:text-sm font-medium text-cocoa max-w-[96px] truncate">
+												{c.name}
+											</span>
+										</Link>
+									))}
+								</div>
+							</div>
 						</div>
 					)}
 				</section>
