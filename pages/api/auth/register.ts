@@ -15,9 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  if (req.method === 'POST') {
-    try {
-      const body = req.body ?? {}
+	if (req.method === 'POST') {
+		try {
+			const body = req.body ?? {}
 
       const name = (body as { name?: unknown }).name
       const email = (body as { email?: unknown }).email
@@ -53,24 +53,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
       }
 
-      const { salt, hash } = hashPassword(passwordStr)
-
-      const user = await prisma.user.create({
-        data: {
-          name: nameStr,
-          email: emailStr,
-          phone: phoneTrimmed || null,
-          password: `${salt}:${hash}`
-        }
-      })
-
-      await prisma.notification.create({
-        data: {
-          type: 'user',
-          title: 'New user registration',
-          body: `User ${nameStr} (${emailStr}) just signed up.`
-        }
-      })
+			const { salt, hash } = hashPassword(passwordStr)
+			
+			const user = await prisma.user.create({
+				data: {
+					name: nameStr,
+					email: emailStr,
+					phone: phoneTrimmed || null,
+					password: `${salt}:${hash}`
+				}
+			})
+			
+			try {
+				await prisma.notification.create({
+					data: {
+						type: 'user',
+						title: 'New user registration',
+						body: `User ${nameStr} (${emailStr}) just signed up.`
+					}
+				})
+			} catch (notifyError) {
+				console.error('Registration notification error:', notifyError)
+			}
 
       const userId = String(user.id)
 
@@ -106,4 +110,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@lib/db'
-import { isAdmin } from '@lib/auth'
+import { verifyAdminToken } from '@lib/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'HEAD') {
@@ -8,11 +8,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  if (req.method === 'GET') {
-    if (!isAdmin()) {
-      res.status(401).json({ error: 'Unauthorized' })
-      return
-    }
+	if (req.method === 'GET') {
+		const token = req.cookies?.['admin_session']
+		if (!verifyAdminToken(token)) {
+			res.status(401).json({ error: 'Unauthorized' })
+			return
+		}
 
     const [settings, categories, products, slides, orders, messages, notifications, deliverySettings] =
       await Promise.all([
@@ -34,11 +35,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  if (req.method === 'POST') {
-    if (!isAdmin()) {
-      res.status(401).json({ error: 'Unauthorized' })
-      return
-    }
+	if (req.method === 'POST') {
+		const token = req.cookies?.['admin_session']
+		if (!verifyAdminToken(token)) {
+			res.status(401).json({ error: 'Unauthorized' })
+			return
+		}
 
     res.status(200).json({ ok: true })
     return

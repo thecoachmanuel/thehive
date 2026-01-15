@@ -11,11 +11,16 @@ function sign(payload: string) {
 }
 
 function verify(token: string) {
-  const [payload, signature] = token.split('.')
-  const secret = process.env.ADMIN_SECRET || 'change-me'
-  const hmac = crypto.createHmac('sha256', secret)
-  hmac.update(payload)
-  return signature === hmac.digest('hex')
+	const [payload, signature] = token.split('.')
+	const secret = process.env.ADMIN_SECRET || 'change-me'
+	const hmac = crypto.createHmac('sha256', secret)
+	hmac.update(payload)
+	return signature === hmac.digest('hex')
+}
+
+export function verifyAdminToken(token: string | null | undefined) {
+	if (!token) return false
+	return verify(token)
 }
 
 export async function setAdminSession() {
