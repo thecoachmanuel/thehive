@@ -90,8 +90,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       ]
 
-      const cats = await prisma.category.findMany()
-      const map: Record<string, number> = Object.fromEntries(cats.map((c) => [c.slug, c.id]))
+			const cats = await prisma.category.findMany()
+			const map: Record<string, number> = Object.fromEntries(
+				cats.map((c: { slug: string; id: number }) => [c.slug, c.id])
+			)
 
       for (const p of cakes) {
         const exists = await prisma.product.findFirst({ where: { name: p.name } })
@@ -153,4 +155,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-
