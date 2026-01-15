@@ -10,10 +10,25 @@ type BeforeInstallPromptEvent = Event & {
 export default function InstallPromptBanner() {
 	const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
 	const [visible, setVisible] = useState(false)
+	const [iosHintVisible, setIosHintVisible] = useState(false)
 
 	useEffect(() => {
 		if (typeof window === 'undefined') return
-		if (window.matchMedia('(display-mode: standalone)').matches) return
+		const nav = navigator as Navigator & { standalone?: boolean }
+		const isStandalone =
+			window.matchMedia('(display-mode: standalone)').matches ||
+			typeof nav.standalone === 'boolean' && nav.standalone
+		if (isStandalone) return
+
+		const ua = window.navigator.userAgent || ''
+		const isIos = /iphone|ipad|ipod/i.test(ua)
+
+		if (isIos) {
+			if (localStorage.getItem('pwa-install-banner-ios') === 'done') return
+			setIosHintVisible(true)
+			return
+		}
+
 		if (localStorage.getItem('pwa-install-banner') === 'done') return
 
 		const handleBeforeInstall = (e: Event) => {
@@ -36,6 +51,30 @@ export default function InstallPromptBanner() {
 			window.removeEventListener('appinstalled', handleInstalled)
 		}
 	}, [])
+
+	if (iosHintVisible) {
+		return (
+			<div className="container pb-4">
+				<div className="mx-auto max-w-md rounded-full border border-caramel/40 bg-white/95 backdrop-blur px-4 py-3 flex items-center gap-3 shadow-sm">
+					<div className="flex-1 text-left">
+						<p className="text-xs font-semibold text-cocoa">Add TheHive to your home screen</p>
+						<p className="text-[11px] text-cocoa/70">On iPhone, tap share and choose Add to Home Screen.</p>
+					</div>
+					<button
+						type="button"
+						onClick={() => {
+							localStorage.setItem('pwa-install-banner-ios', 'done')
+							setIosHintVisible(false)
+						}}
+						className="text-cocoa/50 hover:text-cocoa text-xs px-1"
+						aria-label="Dismiss install banner"
+					>
+						×
+					</button>
+				</div>
+			</div>
+		)
+	}
 
 	if (!visible || !installEvent) return null
 
@@ -78,4 +117,3 @@ export default function InstallPromptBanner() {
 		</div>
 	)
 }
-
