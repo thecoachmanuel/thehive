@@ -19,10 +19,9 @@ function verify(token: string) {
 }
 
 export async function setAdminSession() {
-  const payload = `${Date.now()}`
-  const token = sign(payload)
-  cookies().set(COOKIE_NAME, token, { httpOnly: true, path: '/', maxAge: 60 * 60 * 24 })
-  return token
+	const payload = `${Date.now()}`
+	const token = sign(payload)
+	return token
 }
 
 export function isAdmin() {
