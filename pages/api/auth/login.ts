@@ -2,10 +2,17 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@lib/db'
 import crypto from 'crypto'
 
-function verifyPassword(password: string, storedHash: string) {
-  const [salt, hash] = storedHash.split(':')
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
-  return hash === verifyHash
+function verifyPassword(password: string, storedValue: string) {
+	if (!storedValue) return false
+
+	const parts = storedValue.split(':')
+	if (parts.length === 2 && parts[0] && parts[1]) {
+		const [salt, hash] = parts
+		const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex')
+		return hash === verifyHash
+	}
+
+	return storedValue === password
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

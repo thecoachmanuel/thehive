@@ -6,6 +6,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
+	if (req.method === 'OPTIONS') {
+		res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
+		res.status(204).end()
+		return
+	}
+
 	if (req.method === 'POST') {
 		const appUrl =
 			process.env.NEXT_PUBLIC_BASE_URL ||
@@ -24,6 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
-  res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
-  res.status(405).json({ error: 'Method Not Allowed' })
+	res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
+	res.status(405).json({ error: 'Method Not Allowed' })
 }
