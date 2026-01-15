@@ -3,8 +3,13 @@ import { prisma } from '@lib/db'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET' || req.method === 'HEAD') {
-    const s = await prisma.siteSetting.findFirst()
-    res.status(200).json({ businessName: s?.businessName, logoUrl: s?.logoUrl, whatsappNumber: s?.whatsappNumber })
+    try {
+      const s = await prisma.siteSetting.findFirst()
+      res.status(200).json({ businessName: s?.businessName, logoUrl: s?.logoUrl, whatsappNumber: s?.whatsappNumber })
+    } catch (error) {
+      console.error('Failed to fetch settings:', error)
+      res.status(500).json({ error: 'Internal Server Error' })
+    }
     return
   }
 

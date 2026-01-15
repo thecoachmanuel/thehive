@@ -9,17 +9,28 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-	const [settings, slides, categories] = await Promise.all([
-		prisma.siteSetting.findFirst(),
-		prisma.slide.findMany({
-			where: { active: true },
-			orderBy: { id: 'asc' }
-		}),
-		prisma.category.findMany({
-			where: { imageUrl: { not: null } },
-			orderBy: { name: 'asc' }
-		})
-	])
+	let settings = null
+	let slides: any[] = []
+	let categories: any[] = []
+
+	try {
+		const [s, sl, c] = await Promise.all([
+			prisma.siteSetting.findFirst(),
+			prisma.slide.findMany({
+				where: { active: true },
+				orderBy: { id: 'asc' }
+			}),
+			prisma.category.findMany({
+				where: { imageUrl: { not: null } },
+				orderBy: { name: 'asc' }
+			})
+		])
+		settings = s
+		slides = sl
+		categories = c
+	} catch (error) {
+		console.error('Failed to fetch home data:', error)
+	}
 
 	const businessName = settings?.businessName ?? 'TheHive Cakes'
 	const logoUrl = settings?.logoUrl ?? undefined

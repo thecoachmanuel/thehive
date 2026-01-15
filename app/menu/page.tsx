@@ -8,18 +8,28 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Menu() {
-	const [settings, categories] = await Promise.all([
-		prisma.siteSetting.findFirst(),
-		prisma.category.findMany({
-			orderBy: { name: 'asc' },
-			include: {
-				items: {
-					where: { active: true },
-					orderBy: { name: 'asc' }
+	let settings = null
+	let categories: any[] = []
+
+	try {
+		const [s, c] = await Promise.all([
+			prisma.siteSetting.findFirst(),
+			prisma.category.findMany({
+				orderBy: { name: 'asc' },
+				include: {
+					items: {
+						where: { active: true },
+						orderBy: { name: 'asc' }
+					}
 				}
-			}
-		})
-	])
+			})
+		])
+		settings = s
+		categories = c
+	} catch (error) {
+		console.error('Failed to fetch menu data:', error)
+		// Fallback to empty data or handled gracefully below
+	}
 
 	const businessName = settings?.businessName ?? 'TheHive Cakes'
 	const logoUrl = settings?.logoUrl ?? undefined

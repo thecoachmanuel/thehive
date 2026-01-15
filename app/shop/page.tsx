@@ -8,15 +8,21 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Shop() {
-	const categories = await prisma.category.findMany({
-		orderBy: { name: 'asc' },
-		include: {
-			items: {
-				where: { active: true },
-				orderBy: { name: 'asc' }
+	let categories: any[] = []
+
+	try {
+		categories = await prisma.category.findMany({
+			orderBy: { name: 'asc' },
+			include: {
+				items: {
+					where: { active: true },
+					orderBy: { name: 'asc' }
+				}
 			}
-		}
-	})
+		})
+	} catch (error) {
+		console.error('Failed to fetch shop data:', error)
+	}
 
 	const categoriesWithItems = categories.filter((c) => c.items.length > 0)
 

@@ -13,10 +13,17 @@ export default async function ProductPage({ params }: { params: { id: string } }
 	const id = Number(params.id)
 	if (!id || Number.isNaN(id)) notFound()
 
-	const product = await prisma.product.findUnique({
-		where: { id },
-		include: { category: true }
-	})
+	let product = null
+	try {
+		product = await prisma.product.findUnique({
+			where: { id },
+			include: { category: true }
+		})
+	} catch (error) {
+		console.error(`Failed to fetch product ${id}:`, error)
+		// If DB fails, we probably want to show 404 or error page, but to avoid build crash:
+		// returning null here will trigger the notFound() below
+	}
 
 	if (!product || !product.active) notFound()
 
