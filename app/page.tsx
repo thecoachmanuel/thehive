@@ -22,7 +22,6 @@ export default async function Home() {
 				orderBy: { id: 'asc' }
 			}),
 			prisma.category.findMany({
-				where: { imageUrl: { not: null } },
 				orderBy: { name: 'asc' }
 			})
 		])
@@ -46,7 +45,7 @@ export default async function Home() {
 			}))
 		: undefined
 
-	const visibleCategories = categories.filter((c) => c.imageUrl)
+	const visibleCategories = categories
 
 	return (
 		<div>
@@ -65,10 +64,19 @@ export default async function Home() {
 				) : (
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 						{visibleCategories.map((c) => (
-							<Link key={c.id} href={`/shop?category=${c.slug}`} className="card overflow-hidden group">
-								<div className="relative h-48">
-									<Image src={c.imageUrl as string} alt={c.name} fill className="object-cover group-hover:scale-105 transition-transform" />
-								</div>
+						<Link key={c.id} href={`/shop?category=${c.slug}`} className="card overflow-hidden group">
+							<div className="relative h-48">
+								<Image
+									src={
+										c.imageUrl && c.imageUrl.trim()
+											? c.imageUrl
+											: 'https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg'
+									}
+									alt={c.name}
+									fill
+									className="object-cover group-hover:scale-105 transition-transform"
+								/>
+							</div>
 								<div className="p-4">
 									<h3 className="font-bold text-cocoa">{c.name}</h3>
 									<p className="text-sm text-cocoa/70">Explore delicious {c.name.toLowerCase()} made with love.</p>
