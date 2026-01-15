@@ -155,7 +155,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           email,
           phone,
           totalAmountNgn: total,
-          status: 'pending',
+          status: 'Order received',
           deliveryMethod,
           deliveryAddress: deliveryMethod === 'delivery' ? address : null,
           deliveryFee: finalDeliveryFee,

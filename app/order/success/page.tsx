@@ -27,13 +27,16 @@ export default function Success() {
 				<div className="mt-4 card p-6 text-center max-w-2xl mx-auto">
 					<p className="text-lg text-cocoa/80">
 						Your payment has been received. A confirmation with your order details will be
-						sent shortly.
+						 sent shortly.
 					</p>
 					<div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-						<Link href="/track" className="btn btn-secondary inline-block">
-							Track Your Order
+						<Link href="/orders" className="btn btn-primary inline-block">
+							Go to My Orders
 						</Link>
-						<Link href="/shop" className="btn btn-primary inline-block">
+						<Link href="/track" className="btn btn-secondary inline-block">
+							Track an Order
+						</Link>
+						<Link href="/shop" className="btn btn-outline inline-block">
 							Continue Shopping
 						</Link>
 					</div>

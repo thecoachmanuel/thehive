@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email,
         phone,
         totalAmountNgn: total,
-        status: 'pending',
+        status: 'Order received',
         items: {
           create: [{ productId, quantity, unitPriceNgn: product.priceNgn, note }]
         }
@@ -68,4 +68,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-

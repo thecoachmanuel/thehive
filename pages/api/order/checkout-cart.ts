@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email,
         phone,
         totalAmountNgn: total,
-        status: 'pending',
+        status: 'Order received',
         items: {
           create: lineItems.map((i: { productId: number; quantity: number; unitPriceNgn: number }) => ({ ...i, note }))
         }
