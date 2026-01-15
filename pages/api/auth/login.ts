@@ -14,6 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return
   }
 
+	if (req.method === 'OPTIONS') {
+		res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
+		res.status(204).end()
+		return
+	}
+
   if (req.method === 'POST') {
     try {
       const body = req.body ?? {}
@@ -69,4 +75,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-
