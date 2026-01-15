@@ -38,11 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const ids = items.map((i: Item) => i.productId)
     const dbProducts = await prisma.product.findMany({ where: { id: { in: ids }, active: true } })
-    const lineItems = items
-      .map((i: Item) => {
-        const p = dbProducts.find((d) => d.id === i.productId)
-        return p ? { productId: p.id, quantity: i.quantity ?? 1, unitPriceNgn: p.priceNgn } : null
-      })
+		const lineItems = items
+			.map((i: Item) => {
+				const p = dbProducts.find((d: { id: number }) => d.id === i.productId)
+				return p ? { productId: p.id, quantity: i.quantity ?? 1, unitPriceNgn: p.priceNgn } : null
+			})
       .filter((v): v is { productId: number; quantity: number; unitPriceNgn: number } => v !== null)
 
     if (lineItems.length === 0) {
@@ -89,4 +89,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Allow', ['GET', 'HEAD', 'POST'])
   res.status(405).json({ error: 'Method Not Allowed' })
 }
-
