@@ -3,7 +3,6 @@ import Footer from '@components/Footer'
 import HeroSlider from '@components/HeroSlider'
 import Link from 'next/link'
 import Image from 'next/image'
-import { prisma } from '@lib/db'
 import { SiteSetting, Slide, Category } from '@prisma/client'
 
 export const runtime = 'nodejs'
@@ -15,6 +14,7 @@ export default async function Home() {
 	let categories: Category[] = []
 
 	try {
+		const { prisma } = await import('@lib/db')
 		const [s, sl, c] = await Promise.all([
 			prisma.siteSetting.findFirst(),
 			prisma.slide.findMany({

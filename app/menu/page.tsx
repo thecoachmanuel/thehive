@@ -2,7 +2,6 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import ProductCard from '@components/ProductCard'
 import Image from 'next/image'
-import { prisma } from '@lib/db'
 import { Prisma, SiteSetting } from '@prisma/client'
 
 export const runtime = 'nodejs'
@@ -17,6 +16,7 @@ export default async function Menu() {
 	let categories: CategoryWithItems[] = []
 
 	try {
+		const { prisma } = await import('@lib/db')
 		// Attempt to fetch data, but don't fail the build if DB is missing
 		const results = await Promise.allSettled([
 			prisma.siteSetting.findFirst(),

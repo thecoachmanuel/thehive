@@ -2,7 +2,6 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import ShopGrid from '@components/ShopGrid'
 import Image from 'next/image'
-import { prisma } from '@lib/db'
 import { Prisma } from '@prisma/client'
 
 export const runtime = 'nodejs'
@@ -16,6 +15,7 @@ export default async function Shop() {
 	let categories: CategoryWithItems[] = []
 
 	try {
+		const { prisma } = await import('@lib/db')
 		categories = await prisma.category.findMany({
 			orderBy: { name: 'asc' },
 			include: {
