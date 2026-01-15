@@ -167,11 +167,11 @@ export default function CheckoutForm({ settings, user }: { settings: DeliverySet
               </>
             )}
           </div>
-        </div>
+		</div>
 
 			{!user && (
 				<div className="card p-4 mt-4 text-sm text-cocoa/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-					<p>Already have an account? Sign in to use your saved details.</p>
+					<p>Already have an account?</p>
 					<Link href="/login?redirect=/checkout" className="btn btn-outline text-sm">
 						Sign in and continue checkout
 					</Link>

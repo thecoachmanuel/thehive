@@ -2,45 +2,99 @@ import Header from '@components/Header'
 import Footer from '@components/Footer'
 import Image from 'next/image'
 import Link from 'next/link'
+import { formatNgn } from '@lib/utils'
+import type { Order, OrderItem, Product } from '@prisma/client'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 type SuccessProps = {
-	searchParams: { id?: string; code?: string }
+	searchParams: { id?: string; code?: string; reference?: string; trxref?: string }
 }
 
-function buildWhatsAppLink(whatsappNumber: string | null, orderId?: string, trackingCode?: string) {
+type OrderWithItems = Order & { items: (OrderItem & { product: Product })[] }
+type PaystackVerification = { data?: { metadata?: { orderId?: number } } }
+
+function buildWhatsAppLink(whatsappNumber: string | null, order: OrderWithItems | null) {
 	const fallback = '08166017556'
 	const raw = whatsappNumber && whatsappNumber.trim() ? whatsappNumber.trim() : fallback
 	const intl = raw.replace(/\D/g, '').replace(/^0/, '234')
 
-	const parts = [
-		'Thank you for your purchase from TheHive Cakes.',
-		orderId ? `Order ID: #${orderId}` : null,
-		trackingCode ? `Tracking Code: ${trackingCode}` : null,
-		'Please confirm my order and share next steps.'
-	].filter(Boolean) as string[]
+	if (!order) {
+		const text = encodeURIComponent(
+			'Thank you for your purchase from TheHive Cakes. Please confirm my order and share next steps.'
+		)
+		return `https://wa.me/${intl}?text=${text}`
+	}
 
-	const text = encodeURIComponent(parts.join('\n'))
+	const lines: string[] = []
+	lines.push('New order from TheHive Cakes')
+	lines.push(`Order ID: #${order.id}`)
+	lines.push(`Tracking Code: ${order.trackingCode}`)
+	lines.push(`Customer: ${order.customerName}`)
+	if (order.phone) lines.push(`Phone: ${order.phone}`)
+	if (order.email) lines.push(`Email: ${order.email}`)
+	lines.push('')
+	lines.push('Items:')
+	for (const item of order.items) {
+		lines.push(`${item.quantity}x ${item.product.name} - ${formatNgn(item.unitPriceNgn * item.quantity)}`)
+	}
+	lines.push('')
+	lines.push(`Total Paid: ${formatNgn(order.totalAmountNgn)}`)
+	if (order.deliveryMethod === 'delivery' && order.deliveryAddress) {
+		lines.push(`Delivery Address: ${order.deliveryAddress}`)
+	}
+
+	const text = encodeURIComponent(lines.join('\n'))
 	return `https://wa.me/${intl}?text=${text}`
 }
 
 export default async function Success({ searchParams }: SuccessProps) {
-	const orderId = searchParams.id
-	const trackingCode = searchParams.code
+	const reference = searchParams.reference || searchParams.trxref
+	const idParam = searchParams.id
+	const codeParam = searchParams.code
 
 	let whatsappNumber: string | null = null
+	let order: OrderWithItems | null = null
 
 	try {
 		const { prisma } = await import('@lib/db')
 		const settings = await prisma.siteSetting.findFirst()
 		whatsappNumber = settings?.whatsappNumber ?? null
+
+		if (idParam) {
+			const id = Number(idParam)
+			if (!Number.isNaN(id) && id > 0) {
+				order = (await prisma.order.findFirst({
+					where: { id },
+					include: { items: { include: { product: true } } }
+				})) as OrderWithItems | null
+			}
+		} else if (codeParam) {
+			order = (await prisma.order.findFirst({
+				where: { trackingCode: codeParam },
+				include: { items: { include: { product: true } } }
+			})) as OrderWithItems | null
+		} else if (reference) {
+			try {
+				const { verifyPayment } = await import('@lib/paystack')
+				const verification = (await verifyPayment(reference)) as PaystackVerification
+				const metaOrderId = verification.data?.metadata?.orderId
+				if (metaOrderId) {
+					order = (await prisma.order.findFirst({
+						where: { id: Number(metaOrderId) },
+						include: { items: { include: { product: true } } }
+					})) as OrderWithItems | null
+				}
+			} catch (err) {
+				console.error('Failed to verify payment for success page:', err)
+			}
+		}
 	} catch (error) {
-		console.error('Failed to load WhatsApp number for success page:', error)
+		console.error('Failed to load success page data:', error)
 	}
 
-	const whatsappLink = buildWhatsAppLink(whatsappNumber, orderId, trackingCode)
+	const whatsappLink = buildWhatsAppLink(whatsappNumber, order)
 
 	return (
 		<div>
@@ -48,8 +102,8 @@ export default async function Success({ searchParams }: SuccessProps) {
 			<section className="container py-8 md:py-12">
 				<div className="relative rounded-2xl overflow-hidden h-48 md:h-64 flex flex-col items-center justify-center text-center mb-8">
 					<Image
-						src="https://images.pexels.com/photos/227349/pexels-photo-227349.jpeg"
-						alt="Success Banner"
+						src="https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg"
+						alt="Celebration cake"
 						fill
 						className="object-cover"
 					/>

@@ -5,6 +5,7 @@ import { AuthProvider } from '@components/AuthProvider'
 import { cookies } from 'next/headers'
 import FloatingWhatsApp from '@components/FloatingWhatsApp'
 import { isAdmin as isAdminSession } from '@lib/auth'
+import CartReminder from '@components/CartReminder'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <CartProvider>
             {children}
             <FloatingWhatsApp />
+            <CartReminder />
           </CartProvider>
         </AuthProvider>
       </body>
