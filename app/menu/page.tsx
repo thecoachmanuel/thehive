@@ -8,7 +8,6 @@ import { Prisma, SiteSetting } from '@prisma/client'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-// Force redeploy
 type CategoryWithItems = Prisma.CategoryGetPayload<{
 	include: { items: true }
 }>
@@ -18,7 +17,8 @@ export default async function Menu() {
 	let categories: CategoryWithItems[] = []
 
 	try {
-		const [s, c] = await Promise.all([
+		// Attempt to fetch data, but don't fail the build if DB is missing
+		const results = await Promise.allSettled([
 			prisma.siteSetting.findFirst(),
 			prisma.category.findMany({
 				orderBy: { name: 'asc' },
@@ -30,16 +30,18 @@ export default async function Menu() {
 				}
 			})
 		])
-		settings = s
-		categories = c
+
+		if (results[0].status === 'fulfilled') settings = results[0].value
+		if (results[1].status === 'fulfilled') categories = results[1].value
 	} catch (error) {
-		console.error('Failed to fetch menu data:', error)
-		// Fallback to empty data or handled gracefully below
+		console.error('Failed to fetch menu data (build safe):', error)
 	}
 
 	const businessName = settings?.businessName ?? 'TheHive Cakes'
 	const logoUrl = settings?.logoUrl ?? undefined
-	const categoriesWithItems = categories.filter((cat) => cat.items.length > 0)
+	// Ensure categories is always an array
+	const safeCategories = Array.isArray(categories) ? categories : []
+	const categoriesWithItems = safeCategories.filter((cat) => cat.items.length > 0)
 
 	return (
 		<div>
