@@ -709,7 +709,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-cocoa">Category</label>
                   <select name="categoryId" defaultValue={editingProduct?.categoryId} className="input w-full border rounded p-2">
-                    {categories.map((c) => (
+                    {localCategories.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
