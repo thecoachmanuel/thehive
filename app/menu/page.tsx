@@ -8,6 +8,7 @@ import { Prisma, SiteSetting } from '@prisma/client'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+// Force redeploy
 type CategoryWithItems = Prisma.CategoryGetPayload<{
 	include: { items: true }
 }>
