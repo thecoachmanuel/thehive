@@ -13,7 +13,7 @@ export default async function Shop() {
 		include: {
 			items: {
 				where: { active: true },
-				orderBy: { priceNgn: 'asc' }
+				orderBy: { name: 'asc' }
 			}
 		}
 	})

@@ -1,5 +1,6 @@
 import Header from '@components/Header'
 import Footer from '@components/Footer'
+import ProductCard from '@components/ProductCard'
 import Image from 'next/image'
 import { prisma } from '@lib/db'
 
@@ -14,7 +15,7 @@ export default async function Menu() {
 			include: {
 				items: {
 					where: { active: true },
-					orderBy: { priceNgn: 'asc' }
+					orderBy: { name: 'asc' }
 				}
 			}
 		})
@@ -52,21 +53,7 @@ export default async function Menu() {
 								<h2 className="text-2xl font-bold text-cocoa">{cat.name}</h2>
 								<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 									{cat.items.map((p) => (
-										<div key={p.id} className="card overflow-hidden">
-											<div className="relative h-56 md:h-64">
-												<Image
-													src={p.imageUrl}
-													alt={p.name}
-													fill
-													className="object-cover"
-												/>
-											</div>
-											<div className="p-4">
-												<h3 className="font-semibold text-cocoa">{p.name}</h3>
-												<p className="text-sm text-cocoa/70 mt-1">{p.description}</p>
-												<p className="mt-2 font-semibold text-caramel">₦{p.priceNgn.toLocaleString()}</p>
-											</div>
-										</div>
+										<ProductCard key={p.id} product={p} />
 									))}
 								</div>
 							</div>

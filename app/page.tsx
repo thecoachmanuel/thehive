@@ -3,14 +3,13 @@ import Footer from '@components/Footer'
 import HeroSlider from '@components/HeroSlider'
 import Link from 'next/link'
 import Image from 'next/image'
-import ProductCard from '@components/ProductCard'
 import { prisma } from '@lib/db'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-	const [settings, slides, categories, products] = await Promise.all([
+	const [settings, slides, categories] = await Promise.all([
 		prisma.siteSetting.findFirst(),
 		prisma.slide.findMany({
 			where: { active: true },
@@ -18,16 +17,7 @@ export default async function Home() {
 		}),
 		prisma.category.findMany({
 			where: { imageUrl: { not: null } },
-			include: {
-				items: {
-					where: { active: true }
-				}
-			}
-		}),
-		prisma.product.findMany({
-			where: { active: true },
-			include: { category: true },
-			orderBy: { priceNgn: 'desc' }
+			orderBy: { name: 'asc' }
 		})
 	])
 
@@ -44,11 +34,7 @@ export default async function Home() {
 			}))
 		: undefined
 
-	const visibleCategories = categories
-		.filter((c) => c.imageUrl && c.items.length > 0)
-		.sort((a, b) => b.items.length - a.items.length)
-
-	const featuredProducts = products.slice(0, 6)
+	const visibleCategories = categories.filter((c) => c.imageUrl)
 
 	return (
 		<div>
@@ -80,25 +66,6 @@ export default async function Home() {
 					</div>
 				)}
 			</section>
-			{featuredProducts.length > 0 && (
-				<section className="container py-8 md:py-12">
-					<div className="flex items-center justify-between mb-6">
-						<h2 className="text-2xl md:text-3xl font-display font-bold text-cocoa">Featured treats</h2>
-						<Link href="/shop" className="text-sm md:text-base text-caramel hover:text-cocoa underline-offset-4 hover:underline">
-							View all
-						</Link>
-					</div>
-					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-						{featuredProducts.map((p) => (
-							<ProductCard
-								key={p.id}
-								product={{ id: p.id, name: p.name, description: p.description, priceNgn: p.priceNgn, imageUrl: p.imageUrl }}
-								categoryName={p.category?.name}
-							/>
-						))}
-					</div>
-				</section>
-			)}
 			<section className="bg-cream text-center">
 				<div className="container py-12 md:py-16 flex flex-col items-center">
 					<h2 className="text-2xl md:text-3xl font-display font-bold text-cocoa">Trusted by Lagos for 4 years</h2>
