@@ -109,6 +109,13 @@ export default function AdminDashboard({ settings, categories, products, slides,
     window.history.pushState({}, '', url)
   }
 
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
+
   const [siteSettings, setSiteSettings] = useState(settings)
   const [localCategories, setLocalCategories] = useState(categories)
   const [localProducts, setLocalProducts] = useState(products)
@@ -199,26 +206,30 @@ export default function AdminDashboard({ settings, categories, products, slides,
     doc.save(`orders_export_${new Date().toISOString().split('T')[0]}.pdf`)
   }
 
+  const refreshData = async () => {
+    try {
+      const res = await fetch('/api/admin/sync', { cache: 'no-store' })
+      if (!res.ok) return
+      const data = await res.json()
+      if (data.settings) setSiteSettings(data.settings)
+      if (data.categories) setLocalCategories(data.categories)
+      if (data.products) setLocalProducts(data.products)
+      if (data.slides) setLocalSlides(data.slides)
+      if (data.orders) setLocalOrders(data.orders)
+      if (data.messages) setLocalMessages(data.messages)
+      if (data.notifications) setLocalNotifications(data.notifications)
+      if (data.deliverySettings) setLocalDeliverySettings(data.deliverySettings)
+    } catch (e) {
+      const msg = (e as Error)?.message || ''
+      if (msg.includes('Failed to fetch')) return
+    }
+  }
+
   useEffect(() => {
     let alive = true
     const run = async () => {
-      try {
-        const res = await fetch('/api/admin/sync', { cache: 'no-store' })
-        if (!res.ok) return
-        const data = await res.json()
-        if (!alive) return
-        if (data.settings) setSiteSettings(data.settings)
-        if (data.categories) setLocalCategories(data.categories)
-        if (data.products) setLocalProducts(data.products)
-        if (data.slides) setLocalSlides(data.slides)
-        if (data.orders) setLocalOrders(data.orders)
-        if (data.messages) setLocalMessages(data.messages)
-        if (data.notifications) setLocalNotifications(data.notifications)
-        if (data.deliverySettings) setLocalDeliverySettings(data.deliverySettings)
-      } catch (e) {
-        const msg = (e as Error)?.message || ''
-        if (msg.includes('Failed to fetch')) return
-      }
+      if (!alive) return
+      await refreshData()
     }
     run()
     const interval = setInterval(run, 15000)
@@ -305,13 +316,15 @@ export default function AdminDashboard({ settings, categories, products, slides,
       })
       const data = await res.json()
       if (data.success) {
-        window.location.reload()
+        await refreshData()
+        showToast('Category saved successfully!')
+        setEditingCategory(null)
       } else {
-        alert(data.error || 'Failed to save category')
+        showToast(data.error || 'Failed to save category', 'error')
       }
     } catch (err) {
       console.error(err)
-      alert('Error saving category')
+      showToast('Error saving category', 'error')
     }
   }
 
@@ -336,11 +349,15 @@ export default function AdminDashboard({ settings, categories, products, slides,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData as any))
       })
-      if (res.ok) window.location.reload()
-      else alert('Failed to save slide')
+      if (res.ok) {
+        await refreshData()
+        showToast('Slide saved successfully!')
+        setEditingSlide(null)
+      }
+      else showToast('Failed to save slide', 'error')
     } catch (err) {
       console.error(err)
-      alert('Error saving slide')
+      showToast('Error saving slide', 'error')
     }
   }
 
@@ -353,11 +370,14 @@ export default function AdminDashboard({ settings, categories, products, slides,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData as any))
       })
-      if (res.ok) window.location.reload()
-      else alert('Failed to save delivery settings')
+      if (res.ok) {
+        await refreshData()
+        showToast('Delivery settings saved successfully!')
+      }
+      else showToast('Failed to save delivery settings', 'error')
     } catch (err) {
       console.error(err)
-      alert('Error saving delivery settings')
+      showToast('Error saving delivery settings', 'error')
     }
   }
 
@@ -681,14 +701,18 @@ export default function AdminDashboard({ settings, categories, products, slides,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(Object.fromEntries(formData as any))
                   })
-                  if (res.ok) window.location.reload()
+                  if (res.ok) {
+                    await refreshData()
+                    showToast('Product saved successfully!')
+                    setEditingProduct(null)
+                  }
                   else {
                     const data = await res.json().catch(() => null)
-                    alert((data && data.error) || 'Failed to save product')
+                    showToast((data && data.error) || 'Failed to save product', 'error')
                   }
                 } catch (err) {
                   console.error(err)
-                  alert('Error saving product')
+                  showToast('Error saving product', 'error')
                 }
               }}
             >
@@ -895,14 +919,25 @@ export default function AdminDashboard({ settings, categories, products, slides,
             <form onSubmit={saveDelivery} className="space-y-4 max-w-lg">
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" name="isActive" defaultChecked={localDeliverySettings?.isActive} className="checkbox checkbox-primary" />
+                  <input 
+                    type="checkbox" 
+                    name="isActive" 
+                    checked={localDeliverySettings?.isActive ?? false} 
+                    onChange={(e) => setLocalDeliverySettings({...localDeliverySettings, isActive: e.target.checked})}
+                    className="checkbox checkbox-primary" 
+                  />
                   <span className="text-sm font-semibold text-cocoa">Enable Delivery Option</span>
                 </label>
               </div>
               
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Delivery Fee Calculation Method</label>
-                <select name="method" defaultValue={localDeliverySettings?.method} className="input w-full border rounded p-2">
+                <select 
+                    name="method" 
+                    value={localDeliverySettings?.method ?? 'flat'} 
+                    onChange={(e) => setLocalDeliverySettings({...localDeliverySettings, method: e.target.value})}
+                    className="input w-full border rounded p-2"
+                >
                   <option value="flat">Flat Rate</option>
                   <option value="percentage">Percentage of Order</option>
                 </select>
@@ -910,13 +945,26 @@ export default function AdminDashboard({ settings, categories, products, slides,
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Rate (NGN or %)</label>
-                <input type="number" name="rate" defaultValue={localDeliverySettings?.rate} className="input w-full border rounded p-2" />
+                <input 
+                    type="number" 
+                    name="rate" 
+                    value={localDeliverySettings?.rate ?? 1000} 
+                    onChange={(e) => setLocalDeliverySettings({...localDeliverySettings, rate: Number(e.target.value)})}
+                    className="input w-full border rounded p-2" 
+                />
                 <p className="text-xs text-cocoa/60">If Flat: Amount in NGN. If Percentage: Percent value (e.g. 10)</p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-cocoa">Free Delivery Threshold (Optional)</label>
-                <input type="number" name="freeThreshold" defaultValue={localDeliverySettings?.freeThreshold || ''} placeholder="e.g. 50000" className="input w-full border rounded p-2" />
+                <input 
+                    type="number" 
+                    name="freeThreshold" 
+                    value={localDeliverySettings?.freeThreshold ?? ''} 
+                    onChange={(e) => setLocalDeliverySettings({...localDeliverySettings, freeThreshold: e.target.value ? Number(e.target.value) : null})}
+                    placeholder="e.g. 50000" 
+                    className="input w-full border rounded p-2" 
+                />
                 <p className="text-xs text-cocoa/60">Orders above this amount get free delivery. Leave empty to disable.</p>
               </div>
 
@@ -935,11 +983,14 @@ export default function AdminDashboard({ settings, categories, products, slides,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(Object.fromEntries(formData as any))
               })
-              if (res.ok) window.location.reload()
-              else alert('Failed to save settings')
+              if (res.ok) {
+                await refreshData()
+                showToast('Site settings saved successfully!')
+              }
+              else showToast('Failed to save settings', 'error')
             } catch (err) {
               console.error(err)
-              alert('Error saving settings')
+              showToast('Error saving settings', 'error')
             }
           }} className="card p-6">
             <h2 className="text-xl font-bold text-cocoa mb-4">Site Settings</h2>
@@ -1045,6 +1096,12 @@ export default function AdminDashboard({ settings, categories, products, slides,
               ))}
               {localNotifications.length === 0 && <p className="text-center text-cocoa/50 py-8">No notifications</p>}
             </div>
+          </div>
+        )}
+        
+        {toast && (
+          <div className={`fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transition-all duration-300 ${toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+            {toast.message}
           </div>
         )}
       </main>
