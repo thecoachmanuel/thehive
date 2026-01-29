@@ -127,6 +127,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
   const [localMessages, setLocalMessages] = useState(messages)
   const [localNotifications, setLocalNotifications] = useState(notifications)
   const [localDeliverySettings, setLocalDeliverySettings] = useState(deliverySettings)
+  const [isOffline, setIsOffline] = useState(false)
 
   // Order Filters State
   const [orderSearch, setOrderSearch] = useState('')
@@ -209,8 +210,12 @@ export default function AdminDashboard({ settings, categories, products, slides,
   const refreshData = async () => {
     try {
       const res = await fetch('/api/admin/sync', { cache: 'no-store' })
-      if (!res.ok) return
+      if (!res.ok) {
+        setIsOffline(true)
+        return
+      }
       const data = await res.json()
+      setIsOffline(false)
       if (data.settings) setSiteSettings(data.settings)
       if (data.categories) setLocalCategories(data.categories)
       if (data.products) setLocalProducts(data.products)
@@ -220,6 +225,7 @@ export default function AdminDashboard({ settings, categories, products, slides,
       if (data.notifications) setLocalNotifications(data.notifications)
       if (data.deliverySettings) setLocalDeliverySettings(data.deliverySettings)
     } catch (e) {
+      setIsOffline(true)
       const msg = (e as Error)?.message || ''
       if (msg.includes('Failed to fetch')) return
     }
@@ -555,6 +561,12 @@ export default function AdminDashboard({ settings, categories, products, slides,
       </aside>
 
       <main className="flex-1 min-w-0">
+        {isOffline && (
+          <div className="bg-red-500 text-white p-3 mb-6 rounded-lg shadow-lg flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <span className="font-medium">Database connection lost. Changes may not save. Please check your connection.</span>
+          </div>
+        )}
         {activeTab === 'analytics' && (
           <div className="card p-6">
             <h2 className="text-xl font-bold text-cocoa mb-4">Analytics</h2>

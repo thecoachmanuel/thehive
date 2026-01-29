@@ -13,6 +13,7 @@ type CategoryWithItems = Prisma.CategoryGetPayload<{
 
 export default async function Shop() {
 	let categories: CategoryWithItems[] = []
+	let error: string | null = null
 
 	try {
 		const { prisma } = await import('@lib/db')
@@ -24,8 +25,9 @@ export default async function Shop() {
 				}
 			}
 		})
-	} catch (error) {
-		console.error('Failed to fetch shop data:', error)
+	} catch (e) {
+		console.error('Failed to fetch shop data:', e)
+		error = 'Unable to load products at the moment. Please try again later.'
 	}
 
 	const categoriesWithItems = categories.filter((c) => c.items.length > 0)
@@ -47,7 +49,14 @@ export default async function Shop() {
 						<p className="mt-2 text-white/90 text-lg">Discover delicious cakes, pastries, Chapman, and mocktails.</p>
 					</div>
 				</div>
-				{categoriesWithItems.length === 0 ? (
+				{error ? (
+					<div className="mt-8 card p-8 text-center max-w-2xl mx-auto border-red-200 bg-red-50">
+						<h3 className="text-xl font-bold text-red-800 mb-2">Service Unavailable</h3>
+						<p className="text-red-600">
+							{error}
+						</p>
+					</div>
+				) : categoriesWithItems.length === 0 ? (
 					<div className="mt-8 card p-8 text-center max-w-2xl mx-auto">
 						<p className="text-cocoa/70 mb-4">
 							Our full catalog is being updated. You can still place custom orders via WhatsApp from the homepage.
